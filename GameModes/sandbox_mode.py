@@ -1,5 +1,6 @@
 import pygame
 from Interface.Background import Background
+from GameHUD.game_pause import pause
 from System.resoursepath import resource_path
 
 
@@ -18,5 +19,7 @@ def sandbox(game):
         for e in pygame.event.get():  # Обрабатываем события
             if e.type == pygame.QUIT:
                 raise SystemExit
+            if e.type == pygame.KEYDOWN and e.key == pygame.K_ESCAPE:
+                pause(game)
 
         pygame.display.update()
