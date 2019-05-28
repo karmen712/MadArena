@@ -29,5 +29,5 @@ class Game:
         }
 
 
-ksgame = Game(1024, 640)
-main_menu(ksgame)
+main_menu(Game(1024, 640))
+

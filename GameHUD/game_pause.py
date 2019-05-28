@@ -30,7 +30,6 @@ def pause(game):
                 raise SystemExit
             if ev.type == pygame.KEYDOWN and ev.key == pygame.K_ESCAPE:
                 game.paused = False
-                pygame.mouse.set_visible(False)
             if (ev.type == pygame.MOUSEBUTTONUP) and (ev.button == 1):
                 if quitbutton.rect.collidepoint(pos):
                     raise SystemExit
