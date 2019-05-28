@@ -5,6 +5,7 @@ from System.resoursepath import resource_path
 from GameHUD.unit_select_bar import UnitSelectBar
 from Interface.Button import Button
 from Units.Human import Human
+import random
 
 
 def sandbox(game):
@@ -22,6 +23,7 @@ def sandbox(game):
     u_btns = []
     usb = UnitSelectBar((w, h))
     second = 0
+    random.seed(a='4x4x4x4x')
 
     offset = usb.rect.left + 5
     btn_width = w / 16
@@ -61,9 +63,12 @@ def sandbox(game):
             if e.type == pygame.MOUSEBUTTONUP:
                 if drag:
                     drag = False
-                    dragged.state = "stand_right"
+                    dragged.state = "alive"
                     dragged.move_ip(m_pos)
                     dragged = None
+                else:
+                    lucky = random.choice(units)
+                    lucky.target = m_pos
             if (e.type == pygame.MOUSEBUTTONDOWN) and (e.button == 1):
                 if usb.rect.collidepoint(m_pos):
                     for u_btn in u_btns:

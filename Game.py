@@ -23,6 +23,10 @@ class Game:
         # pygame.mouse.set_visible(False)
         self.paused = False
         self.state = "MainMenu"
+        self.teamcolors ={
+            1: (200, 20, 10),
+            2: (20, 200, 10)
+        }
 
 
 ksgame = Game(1024, 640)
