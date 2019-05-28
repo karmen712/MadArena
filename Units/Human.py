@@ -27,13 +27,13 @@ class Human:
         self.AnimStandRight = pyganim.PygAnimation(Stand_right)
         self.rect = self.image.get_rect(center=(x, y))
 
-    def draw(self, screen, maxhp):
+    def draw(self, screen, max_hp):
         pos = pygame.mouse.get_pos()
         if self.state == "drag":
             self.AnimDrag.blit(screen, pos)
         elif self.state == "stand_right":
             if self.hp > 1:
-                draw.rect(screen, (50, 160, 30), Rect(self.rect.x + 2, self.rect.y - 12, (maxhp / 4) + 2, 3), 1)  # контур полоски hp
+                draw.rect(screen, (50, 160, 30), Rect(self.rect.x + 2, self.rect.y - 12, (max_hp / 4) + 2, 3), 1)  # контур полоски hp
                 draw.rect(screen, (15, 55, 15), Rect(self.rect.x + 3, self.rect.y - 11, self.hp / 4, 1), 0)  # текущее количество hp
                 self.AnimStandRight.blit(screen, (self.rect.x, self.rect.y))
             else:

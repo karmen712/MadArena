@@ -4,7 +4,8 @@ from System.resoursepath import resource_path
 
 
 class Button:
-    def __init__(self, loc, width, height, bordercolor, borderwidth=1, fillcolor=None, text=None, textcolor=None, textsize=10, textfont='Comic Sans MS', focusbrightness=0, icon=None):
+    def __init__(self, loc, width, height, bordercolor, borderwidth=1, fillcolor=None, text=None,
+                 textcolor=None, textsize=10, textfont='Comic Sans MS', focusbrightness=0, icon=None, data=None):
         self.rect = Rect(loc[0], loc[1], width, height)
         self.fillrect = Rect(loc[0]+borderwidth, loc[1]+borderwidth, width-borderwidth, height-borderwidth)
         self.rect.center = loc
@@ -21,6 +22,7 @@ class Button:
         self.width = width
         self.height = height
         self.focusbrightness = focusbrightness
+        self.data = data
         if icon is not None:
             try:
                 self.icon = image.load(resource_path(icon))
