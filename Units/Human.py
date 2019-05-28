@@ -20,16 +20,16 @@ Drag = [(resource_path("Media/Sprites/Units/Human/Drag/human_Drag21.png"), 200),
         (resource_path("Media/Sprites/Units/Human/Drag/human_Drag21.png"), 200)]
 
 Walk_left = [(resource_path("Media/Sprites/Units/Human/Walk/Left/human_walk_left1.png"), 200),
-            (resource_path("Media/Sprites/Units/Human/Walk/Left/human_walk_left2.png"), 200),
-            (resource_path("Media/Sprites/Units/Human/Walk/Left/human_walk_left3.png"), 200),
-            (resource_path("Media/Sprites/Units/Human/Walk/Left/human_walk_left4.png"), 200),
-            (resource_path("Media/Sprites/Units/Human/Walk/Left/human_walk_left5.png"), 200)]
+             (resource_path("Media/Sprites/Units/Human/Walk/Left/human_walk_left2.png"), 200),
+             (resource_path("Media/Sprites/Units/Human/Walk/Left/human_walk_left3.png"), 200),
+             (resource_path("Media/Sprites/Units/Human/Walk/Left/human_walk_left4.png"), 200),
+             (resource_path("Media/Sprites/Units/Human/Walk/Left/human_walk_left5.png"), 200)]
 
 Walk_right = [(resource_path("Media/Sprites/Units/Human/Walk/Right/human_walk_right1.png"), 200),
-             (resource_path("Media/Sprites/Units/Human/Walk/Right/human_walk_right2.png"), 200),
-             (resource_path("Media/Sprites/Units/Human/Walk/Right/human_walk_right3.png"), 200),
-             (resource_path("Media/Sprites/Units/Human/Walk/Right/human_walk_right4.png"), 200),
-             (resource_path("Media/Sprites/Units/Human/Walk/Right/human_walk_right5.png"), 200)]
+              (resource_path("Media/Sprites/Units/Human/Walk/Right/human_walk_right2.png"), 200),
+              (resource_path("Media/Sprites/Units/Human/Walk/Right/human_walk_right3.png"), 200),
+              (resource_path("Media/Sprites/Units/Human/Walk/Right/human_walk_right4.png"), 200),
+              (resource_path("Media/Sprites/Units/Human/Walk/Right/human_walk_right5.png"), 200)]
 
 
 class Human:
@@ -38,7 +38,7 @@ class Human:
         self.max_hp = max_hp
         self.hp = max_hp
         self.state = state
-        self.image = image.load(resource_path("Media/Sprites/Units/Human/Drag/human_Drag1.png"))
+        self.image = image.load(resource_path("Media/Sprites/Units/Human/human.png"))
         self.AnimDrag = pyganim.PygAnimation(Drag)
         self.AnimDrag.anchor(anchorPoint='center')
         self.AnimDrag.play()
@@ -62,7 +62,7 @@ class Human:
         self.move_speed_x = 2.5
         self.move_speed_y = 1.0
         self.dir = random.randint(0, 1)  # 0 - LEFT 1- RIGHT
-        self.target = pos
+        self.target = self.rect.center
 
     def draw(self, screen):
         def draw_hp_bar():
@@ -93,13 +93,17 @@ class Human:
 
             draw.line(screen, (30, 120, 10), self.target, self.rect.center, 1)
 
-
         pos = mouse.get_pos()
-        if self.rect.y + self.rect.height < 440:
+        if self.rect.y + self.rect.height < screen.get_size()[1] * 0.6875:
             self.yspeed += self.yvel
             self.rect.y += self.yspeed
         if self.state == "drag":
+            self.rect.move_ip((pos[0]-16, pos[1]))
             self.AnimDrag.blit(screen, (pos[0]-16, pos[1]))
+            if pos[1] > screen.get_size()[1] * 0.6875:
+                self.target = pos
+            else:
+                self.target = (pos[0], screen.get_size()[1] * 0.6875)
         elif self.state == "alive":
             if self.hp > 1:
                 draw_hp_bar()

@@ -66,9 +66,7 @@ def sandbox(game):
                     dragged.state = "alive"
                     dragged.move_ip(m_pos)
                     dragged = None
-                else:
-                    lucky = random.choice(units)
-                    lucky.target = m_pos
+
             if (e.type == pygame.MOUSEBUTTONDOWN) and (e.button == 1):
                 if usb.rect.collidepoint(m_pos):
                     for u_btn in u_btns:
@@ -76,6 +74,9 @@ def sandbox(game):
                             drag = True
                             dragged = Human(m_pos, 100, "drag")
                             units.append(dragged)
+                if m_pos[1] > game.WIN_HEIGHT * 0.6875:
+                    lucky = random.choice(units)
+                    lucky.target = m_pos
         if dragged is not None:
             dragged.draw(screen)
         if second == 1000:
