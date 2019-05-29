@@ -1,7 +1,6 @@
 import pygame
-from System.resoursepath import resource_path
-from pygame import *
 from Menus.main_menu import main_menu
+from System.resoursepath import resource_path
 
 
 class Game:
@@ -17,16 +16,12 @@ class Game:
         self.font = pygame.font.SysFont('Arial', 12)
         self.pointsfont = pygame.font.SysFont('TimesNewRoman', 16)
         self.helpfont = pygame.font.SysFont('TimesNewRoman', 12)
-        icon = image.load(resource_path("Media/Images/Icons/MadArenaIco.ico"))
+        icon = pygame.image.load(resource_path("Media/Images/Icons/MadArenaIco.ico"))
         pygame.display.set_caption("Mad Arena")  # Пишем в шапку
         pygame.display.set_icon(icon)
         # pygame.mouse.set_visible(False)
         self.paused = False
         self.state = "MainMenu"
-        self.teamcolors ={
-            1: (200, 20, 10),
-            2: (20, 200, 10)
-        }
 
 
 main_menu(Game(1024, 640))

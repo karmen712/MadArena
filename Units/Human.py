@@ -2,6 +2,7 @@ from pygame import *
 import pyganim
 from System.resoursepath import resource_path
 import random
+from Menus.options import team_colors
 
 Stand_right = [(resource_path("Media/Sprites/Units/Human/Stand/human_stand_right1.png"), 200),
                (resource_path("Media/Sprites/Units/Human/Stand/human_stand_right2.png"), 300),
@@ -33,7 +34,7 @@ Walk_right = [(resource_path("Media/Sprites/Units/Human/Walk/Right/human_walk_ri
 
 
 class Human:
-    def __init__(self, pos, max_hp, state):
+    def __init__(self, pos, max_hp, state, team):
         x, y = pos
         self.max_hp = max_hp
         self.hp = max_hp
@@ -55,74 +56,101 @@ class Human:
         self.AnimWalkRight.anchor(anchorPoint='center')
         self.AnimWalkRight.play()
         self.rect = self.image.get_rect(center=pos)
-        self.team = 1
-        self.yvel = 1
+        self.team = team
+        self.yvel = 0.98
         self.yspeed = 0
+        self.xvel = 0
+        self.xspeed = 0
         self.moving = False
         self.move_speed_x = 2.5
         self.move_speed_y = 1.0
         self.dir = random.randint(0, 1)  # 0 - LEFT 1- RIGHT
         self.target = self.rect.center
+        self.selected = False
+        self.body_height = self.rect.width*0.23
+        self.half_rect = self.rect.copy()
+        self.half_rect.height = self.body_height
+        self.half_rect.center = self.rect.midbottom
 
     def draw(self, screen):
         def draw_hp_bar():
-            draw.rect(screen, (50, 160, 30), Rect(self.rect.x + 2, self.rect.y - 12, (self.max_hp / 4) + 2, 3), 1)  # контур полоски hp
+            draw.rect(screen, team_colors[self.team], Rect(self.rect.x + 2, self.rect.y - 12, (self.max_hp / 4) + 2, 3), 1)  # контур полоски hp
             draw.rect(screen, (15, 55, 15), Rect(self.rect.x + 3, self.rect.y - 11, self.hp / 4, 1), 0)             # текущее количество hp
 
+        def stop_moving():
+            self.xspeed = 0
+            self.yspeed = 0
+
         def walk_to_target():
-            bx, by = self.rect.x + (self.rect.width / 2), self.rect.y + self.rect.height
+            bx, by = self.rect.midbottom
             tx, ty = self.target
-            x_condition = bx - 10 <= self.target[0] <= bx + 10
-            y_condition = by - 10 <= self.target[1] <= by + 10
+            x_condition = bx - (self.half_rect.width/2) <= self.target[0] <= bx + (self.half_rect.width/2)
+            y_condition = by - (self.body_height/2) <= self.target[1] <= by + (self.body_height/2)
             if x_condition and y_condition:
-                self.moving = False
+                stop_moving()
+                self.state = "stand"
                 return
-            self.moving = True
+            if x_condition:
+                self.xspeed = 0
+            if y_condition:
+                self.yspeed = 0
             if not x_condition:
                 if tx > bx:
                     self.dir = 1
-                    self.rect.x += self.move_speed_x
+                    self.xspeed = self.move_speed_x
                 else:
                     self.dir = 0
-                    self.rect.x -= self.move_speed_x
+                    self.xspeed = self.move_speed_x * -1
             if not y_condition:
                 if ty > by:
-                    self.rect.y += self.move_speed_y
+                    self.yspeed = self.move_speed_y
                 else:
-                    self.rect.y -= self.move_speed_y
+                    self.yspeed = self.move_speed_y * -1
+            draw.line(screen, team_colors[self.team], self.target, self.rect.center, 1)
 
-            draw.line(screen, (30, 120, 10), self.target, self.rect.center, 1)
-
-        pos = mouse.get_pos()
-        if self.rect.y + self.rect.height < screen.get_size()[1] * 0.6875:
+        if (self.rect.bottom < (screen.get_size()[1] * 0.6875)) and (self.state != "drag"):
+            self.state = "falling"
             self.yspeed += self.yvel
-            self.rect.y += self.yspeed
-        if self.state == "drag":
-            self.rect.move_ip((pos[0]-16, pos[1]))
-            self.AnimDrag.blit(screen, (pos[0]-16, pos[1]))
-            if pos[1] > screen.get_size()[1] * 0.6875:
-                self.target = pos
-            else:
-                self.target = (pos[0], screen.get_size()[1] * 0.6875)
-        elif self.state == "alive":
-            if self.hp > 1:
-                draw_hp_bar()
+
+        if self.hp > 0:
+            draw_hp_bar()
+            if not self.half_rect.collidepoint(self.target) and (self.state != "drag") and (self.state != "falling"):
+                self.state = "moving"
                 walk_to_target()
-                if not self.moving:
-                    if self.dir == 0:
-                        self.AnimStandLeft.blit(screen, (self.rect.x, self.rect.y))
-                    else:
-                        self.AnimStandRight.blit(screen, (self.rect.x, self.rect.y))
-                else:
-                    if self.dir == 0:
-                        self.AnimWalkLeft.blit(screen, (self.rect.x, self.rect.y))
-                    else:
-                        self.AnimWalkRight.blit(screen, (self.rect.x, self.rect.y))
+            if self.selected:
+                self.half_rect.center = self.rect.midbottom
+                draw.ellipse(screen, team_colors[self.team], self.half_rect, 1)
+        else:
+            self.state = "dead"
+            self.image = image.load(resource_path("Media/Sprites/Units/Human/human_dead.png"))
+        if self.state == "drag":
+            stop_moving()
+            self.AnimDrag.blit(screen, self.rect.midtop)
+
+        elif self.state == "moving":
+            self.rect.move_ip(self.xspeed, self.yspeed)
+            if self.dir == 0:
+                self.AnimWalkLeft.blit(screen, (self.rect.x, self.rect.y))
             else:
-                self.state = "dead"
-                self.image = image.load(resource_path("Media/Sprites/Units/Human/human_dead.png"))
+                self.AnimWalkRight.blit(screen, (self.rect.x, self.rect.y))
+        elif self.state == "stand":
+            if self.dir == 0:
+                self.AnimStandLeft.blit(screen, (self.rect.x, self.rect.y))
+            else:
+                self.AnimStandRight.blit(screen, (self.rect.x, self.rect.y))
+
+        elif self.state == "falling":
+            self.rect.move_ip(self.xspeed, self.yspeed)
+            if self.dir == 0:
+                self.image = image.load(resource_path("Media/Sprites/Units/Human/human_falling_left.png"))
+            else:
+                self.image = image.load(resource_path("Media/Sprites/Units/Human/human_falling_right.png"))
+            screen.blit(self.image, self.rect)
+            if self.rect.bottom > (screen.get_size()[1] * 0.6875):
+                self.target = (self.rect.x, (screen.get_size()[1] * 0.6875))
+                self.state = "stand"
         elif self.state == "dead":
             screen.blit(self.image, self.rect)
 
     def move_ip(self, pos):
-        self.rect.center = pos
+        self.rect.topright = pos
