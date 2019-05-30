@@ -28,7 +28,7 @@ def sandbox(game):
     random.seed(a='4x4x4x4x')
     sel_rect = pygame.Rect(0, 0, 0, 0)
     sel_pos_start = (0, 0)
-    sea_border_y = game.WIN_HEIGHT * 0.6875
+    sea_border_y = game.WIN_HEIGHT * 0.5
 
     offset = usb.rect.left + 5
     btn_width = w / 16
