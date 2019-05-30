@@ -49,8 +49,17 @@ class HumanAnimations:
                                  (resource_path("Media/Sprites/Units/Human/Attack/Right/human_attack_right2.png"), 200/self.speed),
                                  (resource_path("Media/Sprites/Units/Human/Attack/Right/human_attack_right1.png"), 200/self.speed)]
 
+        self.Attack_left = pyganim.PygAnimation(self.Attack_left_pic)
+        self.Attack_left.play()
+        self.Attack_right = pyganim.PygAnimation(self.Attack_right_pic)
+        self.Attack_right.play()
         self.Stand_right = pyganim.PygAnimation(self.Stand_right_pic)
+        self.Stand_right.play()
         self.Stand_left = pyganim.PygAnimation(self.Stand_left_pic)
+        self.Stand_left.play()
         self.Drag = pyganim.PygAnimation(self.Drag_pic)
+        self.Drag.play()
         self.Walk_left = pyganim.PygAnimation(self.Walk_left_pic)
+        self.Walk_left.play()
         self.Walk_right = pyganim.PygAnimation(self.Walk_right_pic)
+        self.Walk_right.play()

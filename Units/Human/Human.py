@@ -12,16 +12,6 @@ class Human:
         self.rect = self.image.get_rect(center=pos)
 
         self.Animations = HumanAnimations(100)
-        self.AnimDrag = self.Animations.Drag
-        self.AnimDrag.play()
-        self.AnimStandRight = self.Animations.Stand_right
-        self.AnimStandRight.play()
-        self.AnimStandLeft = self.Animations.Stand_left
-        self.AnimStandLeft.play()
-        self.AnimWalkLeft = self.Animations.Walk_left
-        self.AnimWalkLeft.play()
-        self.AnimWalkRight = self.Animations.Walk_right
-        self.AnimWalkRight.play()
         self.Attack_cooldown = 1500
         self.body_height = self.rect.width * 0.23
         self.dir = random.randint(0, 1)  # 0 - LEFT 1- RIGHT
@@ -97,20 +87,20 @@ class Human:
             self.image = image.load(resource_path("Media/Sprites/Units/Human/human_dead.png"))
         if self.state == "drag":
             stop_moving()
-            self.AnimDrag.blit(screen, self.rect.midtop)
+            self.Animations.Drag.blit(screen, self.rect.midtop)
 
         elif self.state == "moving":
             self.rect.move_ip(self.xspeed, self.yspeed)
             draw.line(screen, team_colors[self.team], self.target, self.rect.center, 1)
             if self.dir == 0:
-                self.AnimWalkLeft.blit(screen, (self.rect.x, self.rect.y))
+                self.Animations.Walk_left.blit(screen, (self.rect.x, self.rect.y))
             else:
-                self.AnimWalkRight.blit(screen, (self.rect.x, self.rect.y))
+                self.Animations.Walk_right.blit(screen, (self.rect.x, self.rect.y))
         elif self.state == "stand":
             if self.dir == 0:
-                self.AnimStandLeft.blit(screen, (self.rect.x, self.rect.y))
+                self.Animations.Stand_left.blit(screen, (self.rect.x, self.rect.y))
             else:
-                self.AnimStandRight.blit(screen, (self.rect.x, self.rect.y))
+                self.Animations.Stand_right.blit(screen, (self.rect.x, self.rect.y))
 
         elif self.state == "falling":
             self.rect.move_ip(self.xspeed, self.yspeed)
