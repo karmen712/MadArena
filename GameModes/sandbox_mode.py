@@ -92,12 +92,12 @@ def sandbox(game):
                     elif selecting:
                         selecting = False
                         clear_selection()
+                        sel_rect.normalize()
                         for unit in units:
                             if unit.rect.colliderect(sel_rect) and unit.team == 1:
                                 unit.selected = True
                                 sel_units.append(unit)
                     else:
-                        pass
                         clear_selection()
                 if e.button == 3:
                     if m_pos[1] > sea_border_y:
