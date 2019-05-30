@@ -19,7 +19,6 @@ def sandbox(game):
                        ]
     units = []
     sel_units = []
-    units_collide_rects = list()
     drag = False
     dragged = None
     selecting = False
@@ -46,7 +45,7 @@ def sandbox(game):
 
     def sort_units():
         def sort_by_y(val):
-            return val.rect.y
+            return val.half_rect.y
         units.sort(key=sort_by_y)
 
     def clear_selection():
@@ -88,7 +87,7 @@ def sandbox(game):
                         selecting = False
                         clear_selection()
                         for unit in units:
-                            if unit.rect.colliderect(sel_rect):
+                            if unit.rect.colliderect(sel_rect) and unit.team == 1:
                                 unit.selected = True
                                 sel_units.append(unit)
                     else:
@@ -106,8 +105,8 @@ def sandbox(game):
                         if u_btn.fillrect.collidepoint(m_pos):
                             drag = True
                             dragged = Human(m_pos, 100, "drag", u_btn.data)
+                            dragged.id = len(units)
                             units.append(dragged)
-                            units_collide_rects.append(dragged.half_rect)
                 elif not selecting:
                     selecting = True
                     sel_pos_start = m_pos
@@ -117,5 +116,20 @@ def sandbox(game):
         for unit in units:
             unit.draw(screen)
             screen.blit(game.font.render(unit.state, False, (155, 55, 55)), (unit.rect.topleft[0], unit.rect.topleft[1]-10))
-
+            for unit2 in units:
+                if unit.id == unit2.id:
+                    continue
+                if unit.half_rect.colliderect(unit2.half_rect):
+                    if unit.half_rect.center[0] > unit2.half_rect.center[0]:
+                        unit.rect.x += 1
+                        unit2.rect.x -= 1
+                    else:
+                        unit.rect.x -= 1
+                        unit2.rect.x += 1
+                    if unit.half_rect.center[1] > unit2.half_rect.center[1]:
+                        unit.rect.y += 1
+                        unit2.rect.y -= 1
+                    else:
+                        unit.rect.y -= 1
+                        unit2.rect.y += 1
         pygame.display.update()

@@ -71,6 +71,7 @@ class Human:
         self.half_rect = self.rect.copy()
         self.half_rect.height = self.body_height
         self.half_rect.center = self.rect.midbottom
+        self.id = None
 
     def draw(self, screen):
         def draw_hp_bar():
@@ -80,12 +81,13 @@ class Human:
         def stop_moving():
             self.xspeed = 0
             self.yspeed = 0
+            self.target = self.rect.midbottom
 
         def walk_to_target():
             bx, by = self.rect.midbottom
             tx, ty = self.target
-            x_condition = bx - (self.half_rect.width/2) <= self.target[0] <= bx + (self.half_rect.width/2)
-            y_condition = by - (self.body_height/2) <= self.target[1] <= by + (self.body_height/2)
+            x_condition = bx - (self.half_rect.width*0.7) <= self.target[0] <= bx + (self.half_rect.width*0.7)
+            y_condition = by - (self.body_height*0.7) <= self.target[1] <= by + (self.body_height*0.7)
             if x_condition and y_condition:
                 stop_moving()
                 self.state = "stand"
@@ -106,8 +108,8 @@ class Human:
                     self.yspeed = self.move_speed_y
                 else:
                     self.yspeed = self.move_speed_y * -1
-            draw.line(screen, team_colors[self.team], self.target, self.rect.center, 1)
 
+        self.half_rect.center = self.rect.midbottom
         if (self.rect.bottom < (screen.get_size()[1] * 0.6875)) and (self.state != "drag"):
             self.state = "falling"
             self.yspeed += self.yvel
@@ -118,7 +120,6 @@ class Human:
                 self.state = "moving"
                 walk_to_target()
             if self.selected:
-                self.half_rect.center = self.rect.midbottom
                 draw.ellipse(screen, team_colors[self.team], self.half_rect, 1)
         else:
             self.state = "dead"
@@ -129,6 +130,7 @@ class Human:
 
         elif self.state == "moving":
             self.rect.move_ip(self.xspeed, self.yspeed)
+            draw.line(screen, team_colors[self.team], self.target, self.rect.center, 1)
             if self.dir == 0:
                 self.AnimWalkLeft.blit(screen, (self.rect.x, self.rect.y))
             else:
@@ -147,7 +149,7 @@ class Human:
                 self.image = image.load(resource_path("Media/Sprites/Units/Human/human_falling_right.png"))
             screen.blit(self.image, self.rect)
             if self.rect.bottom > (screen.get_size()[1] * 0.6875):
-                self.target = (self.rect.x, (screen.get_size()[1] * 0.6875))
+                stop_moving()
                 self.state = "stand"
         elif self.state == "dead":
             screen.blit(self.image, self.rect)
