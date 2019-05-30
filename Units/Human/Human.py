@@ -25,12 +25,13 @@ class Human:
         self.move_speed_x = 2.0
         self.move_speed_y = 1.0
         self.selected = False
+        self.shadow_rect = self.half_rect.copy()
         self.state = state
         self.target = self.rect.center
         self.team = team
         self.xvel = 0
         self.xspeed = 0
-        self.yvel = 0.98
+        self.gravity = 0.98
         self.yspeed = 0
         self.z = 0
 
@@ -71,9 +72,12 @@ class Human:
                     self.yspeed = self.move_speed_y * -1
 
         self.half_rect.center = self.rect.midbottom
+        self.shadow_rect.x, self.shadow_rect.y = self.half_rect.x, (self.half_rect.y + self.z)
+
         if self.z > 0:
-            self.state = "falling"
-            self.yspeed += self.yvel
+            if self.state != "drag":
+                self.state = "falling"
+                self.yspeed += self.gravity
 
         if self.hp > 0:
             draw_hp_bar()
@@ -85,8 +89,8 @@ class Human:
         else:
             self.state = "dead"
             self.image = image.load(resource_path("Media/Sprites/Units/Human/human_dead.png"))
+
         if self.state == "drag":
-            stop_moving()
             self.Animations.Drag.blit(screen, self.rect.midtop)
 
         elif self.state == "moving":
@@ -96,6 +100,7 @@ class Human:
                 self.Animations.Walk_left.blit(screen, (self.rect.x, self.rect.y))
             else:
                 self.Animations.Walk_right.blit(screen, (self.rect.x, self.rect.y))
+
         elif self.state == "stand":
             if self.dir == 0:
                 self.Animations.Stand_left.blit(screen, (self.rect.x, self.rect.y))
@@ -114,6 +119,7 @@ class Human:
                 self.z = 0
                 stop_moving()
                 self.state = "stand"
+
         elif self.state == "dead":
             screen.blit(self.image, self.rect)
 

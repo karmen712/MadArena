@@ -29,6 +29,7 @@ def sandbox(game):
     sel_rect = pygame.Rect(0, 0, 0, 0)
     sel_pos_start = (0, 0)
     sea_border_y = game.WIN_HEIGHT * 0.5
+    # transparent_surface = pygame.Surface((w, h), pygame.SRCALPHA)
 
     offset = usb.rect.left + 5
     btn_width = w / 16
@@ -41,8 +42,8 @@ def sandbox(game):
         offset += (5 + btn_width)
 
     def draw_buttons():
-        for u_btn in u_btns:
-            u_btn.draw(screen, m_pos)
+        for u_bt in u_btns:
+            u_bt.draw(screen, m_pos)
 
     def sort_units():
         def sort_by_y(val):
@@ -71,6 +72,8 @@ def sandbox(game):
             pygame.draw.rect(screen, (30, 200, 10), sel_rect, 1)
         if drag:
             dragged.move_ip(m_pos)
+            if sea_border_y > m_pos[1]:
+                dragged.z = sea_border_y - m_pos[1]
         for e in pygame.event.get():  # Обрабатываем события
             if e.type == pygame.QUIT:
                 raise SystemExit
@@ -82,7 +85,9 @@ def sandbox(game):
                         drag = False
                         dragged.move_ip(m_pos)
                         if sea_border_y > m_pos[1]:
-                            dragged.z = sea_border_y - m_pos[1]
+                            dragged.state = "falling"
+                        else:
+                            dragged.state = "stand"
                         dragged = None
                     elif selecting:
                         selecting = False
@@ -122,10 +127,10 @@ def sandbox(game):
             collision_speed_y = unit.move_speed_y + 2
             rand = random.randint(3, 7)
             if unit.half_rect.center[1] < sea_border_y and unit.state != "falling" and unit.state != "drag":
-                unit.rect.y += collision_speed_x
+                unit.rect.y += collision_speed_y
                 unit.target = (unit.target[0], sea_border_y + rand)
             if unit.half_rect.center[1] > game.WIN_HEIGHT:
-                unit.rect.y -= collision_speed_x
+                unit.rect.y -= collision_speed_y
                 unit.target = (unit.target[0], game.WIN_HEIGHT - rand)
             if unit.half_rect.center[0] > game.WIN_WIDTH:
                 unit.rect.x -= collision_speed_x
