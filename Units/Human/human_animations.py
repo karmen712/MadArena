@@ -36,18 +36,16 @@ class HumanAnimations:
                                (resource_path("Media/Sprites/Units/Human/Walk/Right/human_walk_right5.png"), 200/self.speed)]
 
         self.Attack_left_pic = [(resource_path("Media/Sprites/Units/Human/Attack/Left/human_attack_left1.png"), 300/self.speed),
-                                (resource_path("Media/Sprites/Units/Human/Attack/Left/human_attack_left2.png"), 200/self.speed),
-                                (resource_path("Media/Sprites/Units/Human/Attack/Left/human_attack_left3.png"), 200/self.speed),
-                                (resource_path("Media/Sprites/Units/Human/Attack/Left/human_attack_left4.png"), 400/self.speed),
-                                (resource_path("Media/Sprites/Units/Human/Attack/Left/human_attack_left2.png"), 200/self.speed),
-                                (resource_path("Media/Sprites/Units/Human/Attack/Left/human_attack_left1.png"), 200/self.speed)]
+                                (resource_path("Media/Sprites/Units/Human/Attack/Left/human_attack_left2.png"), 300/self.speed),
+                                (resource_path("Media/Sprites/Units/Human/Attack/Left/human_attack_left3.png"), 300/self.speed),
+                                (resource_path("Media/Sprites/Units/Human/Attack/Left/human_attack_left4.png"), 300/self.speed),
+                                (resource_path("Media/Sprites/Units/Human/Attack/Left/human_attack_left2.png"), 300/self.speed)]
 
         self.Attack_right_pic = [(resource_path("Media/Sprites/Units/Human/Attack/Right/human_attack_right1.png"), 300/self.speed),
-                                 (resource_path("Media/Sprites/Units/Human/Attack/Right/human_attack_right2.png"), 200/self.speed),
-                                 (resource_path("Media/Sprites/Units/Human/Attack/Right/human_attack_right3.png"), 200/self.speed),
-                                 (resource_path("Media/Sprites/Units/Human/Attack/Right/human_attack_right4.png"), 400/self.speed),
-                                 (resource_path("Media/Sprites/Units/Human/Attack/Right/human_attack_right2.png"), 200/self.speed),
-                                 (resource_path("Media/Sprites/Units/Human/Attack/Right/human_attack_right1.png"), 200/self.speed)]
+                                 (resource_path("Media/Sprites/Units/Human/Attack/Right/human_attack_right2.png"), 300/self.speed),
+                                 (resource_path("Media/Sprites/Units/Human/Attack/Right/human_attack_right3.png"), 300/self.speed),
+                                 (resource_path("Media/Sprites/Units/Human/Attack/Right/human_attack_right4.png"), 300/self.speed),
+                                 (resource_path("Media/Sprites/Units/Human/Attack/Right/human_attack_right2.png"), 300/self.speed)]
 
         self.Attack_left = pyganim.PygAnimation(self.Attack_left_pic)
         self.Attack_left.play()
