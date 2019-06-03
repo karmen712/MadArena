@@ -7,6 +7,8 @@ from Interface.Button import Button
 from Units.Human import Human
 import random
 import math
+from System.MyPhysics import Physics
+from Menus.options import *
 
 
 def sandbox(game):
@@ -18,6 +20,7 @@ def sandbox(game):
     available_units = [{'color': (25, 146, 47), 'text': 'hooman', 'team': 1},
                        {'color': (140, 4, 47), 'text': 'human', 'team': 2}
                        ]
+    phys = Physics(friction, gravity)
     units = []
     sel_units = []
     drag = False
@@ -75,7 +78,7 @@ def sandbox(game):
     while 1:  # Основной цикл программы
         if game.state != "Sandbox":
             break
-        timer.tick(100)
+        timer.tick(40)
         second += 100
         m_pos = pygame.mouse.get_pos()
 
@@ -144,23 +147,8 @@ def sandbox(game):
             sort_units()
         for unit in units:
             unit.draw(screen)
-            collision_speed_x = unit.move_speed_x + 2
-            collision_speed_y = unit.move_speed_y + 2
-            rand = random.randint(3, 7)
-            # region BORDER INTERSECT ----------------------------------------------------------------------------
-            if unit.half_rect.center[1] < sea_border_y and unit.state != "falling" and unit.state != "drag":
-                unit.rect.y += collision_speed_y
-                unit.target = (unit.target[0], sea_border_y + rand)
-            if unit.half_rect.center[1] > game.WIN_HEIGHT:
-                unit.rect.y -= collision_speed_y
-                unit.target = (unit.target[0], game.WIN_HEIGHT - rand)
-            if unit.half_rect.center[0] > game.WIN_WIDTH:
-                unit.rect.x -= collision_speed_x
-                unit.target = (game.WIN_WIDTH - rand, unit.target[1])
-            if unit.half_rect.center[0] < 1:
-                unit.rect.x += collision_speed_x
-                unit.target = (rand, unit.target[1])
-            # endregion
+            phys.border_intersect(unit, sea_border_y, game.WIN_WIDTH, game.WIN_HEIGHT)
+            phys.speed_regulation(unit)
 
             attack_targets = []
             if unit_able_to(unit, "attack"):
@@ -184,22 +172,7 @@ def sandbox(game):
                 if unit.id == unit2.id or not unit_able_to(unit, "collide"):
                     continue
                 if unit.half_rect.colliderect(unit2.half_rect) and unit_able_to(unit, "collide"):
-                    if unit.half_rect.center[0] > unit2.half_rect.center[0]:
-                        unit.rect.x += collision_speed_x
-                        unit2.rect.x -= collision_speed_x
-                        unit.target = (unit.target[0] + collision_speed_x, unit.target[1])
-                    else:
-                        unit.rect.x -= collision_speed_x
-                        unit2.rect.x += collision_speed_x
-                        unit.target = (unit.target[0] - collision_speed_x, unit.target[1])
-                    if unit.half_rect.center[1] > unit2.half_rect.center[1]:
-                        unit.rect.y += collision_speed_y
-                        unit2.rect.y -= collision_speed_y
-                        unit.target = (unit.target[0], unit.target[1] + collision_speed_y)
-                    else:
-                        unit.rect.y -= collision_speed_y
-                        unit2.rect.y += collision_speed_y
-                        unit.target = (unit.target[0], unit.target[1] - collision_speed_y)
+                    phys.collide_units(unit, unit2)
             screen.blit(game.font.render(str(unit.state), False, (155, 55, 55)), (unit.rect.topleft[0], unit.rect.topleft[1] - 50))
-            screen.blit(game.font.render(str(unit.hp), False, (55, 55, 55)), (unit.rect.topleft[0] - 20, unit.rect.topleft[1] - 10))
+            screen.blit(game.font.render(str(unit.xvel), False, (55, 55, 55)), (unit.rect.topleft[0] - 20, unit.rect.topleft[1] - 10))
         pygame.display.update()

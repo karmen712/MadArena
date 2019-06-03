@@ -75,6 +75,7 @@ class Human:
         def stop_moving():
             self.xspeed = 0
             self.yspeed = 0
+            self.z = 0
             self.target = self.rect.midbottom
 
         def walk_to_target():
@@ -120,9 +121,9 @@ class Human:
         def die():
             self.yvel = -40
             if self.killer.rect.center[0] > self.rect.center[0]:
-                self.xvel = 10
-            else:
                 self.xvel = -10
+            else:
+                self.xvel = 10
             self.state = "dead"
             self.target = self.rect.midbottom
             self.attack_target = None
@@ -144,47 +145,6 @@ class Human:
 
         self.half_rect.center = self.rect.midbottom
         self.shadow_rect.x, self.shadow_rect.y = self.half_rect.x, (self.half_rect.y + self.z)
-
-        # region SPEED, VELOCITY and Z regulations -------------------------------------------------------------
-        if self.xvel > 0:
-            self.xspeed += self.xvel
-            self.xvel -= options.friction
-        elif self.xvel < 0:
-            self.xspeed += self.xvel
-            self.xvel += options.friction
-
-        if self.yvel > 0:
-            self.yspeed += self.yvel
-            self.yvel -= options.gravity
-        elif self.yvel < 0:
-            self.yspeed += self.yvel
-            self.yvel += options.gravity
-
-        if self.xspeed != 0:
-            if self.state != "moving":
-                if abs(self.xspeed) <= options.friction:
-                    self.xspeed = 0
-                else:
-                    if self.xspeed > options.friction:
-                        self.xspeed -= options.friction
-                    elif self.xspeed < options.friction:
-                        self.xspeed += options.friction
-            self.rect.move_ip(self.xspeed, 0)
-
-        if self.yspeed != 0:
-            self.rect.move_ip(0, self.yspeed)
-            if self.z <= 0 and self.state != "moving":
-                self.yspeed = 0
-                self.yvel = 0
-                self.target = self.rect.midbottom
-            if self.yspeed > 0:
-                self.z -= self.yspeed
-
-        if self.z > 0:
-            if self.state != "drag":
-                self.state = "falling"
-            self.yspeed += options.gravity
-        # endregion
 
         if self.hp > 0:
             draw_hp_bar()
@@ -214,6 +174,7 @@ class Human:
                 self.animations.Walk_right.blit(screen, (self.rect.x, self.rect.y))
 
         elif self.state == "stand":
+            stop_moving()
             if self.attack_target is not None:
                 if self.get_dist_to_attack_trgt() <= self.attack_range:
                     self.state = "attack"
@@ -233,7 +194,6 @@ class Human:
             screen.blit(self.image, self.rect)
             if self.z < 0:
                 self.z = 0
-                stop_moving()
                 self.state = "stand"
 
         elif self.state == "dead":
