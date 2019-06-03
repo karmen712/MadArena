@@ -63,9 +63,11 @@ def sandbox(game):
 
     def unit_able_to(u, action):
         if action == "attack":
-            return u.state in ["stand", "attackmove"] and u.attack_target is None
+            return u.state in ["stand", "attack_move"] and u.attack_target is None
         if action == "be_attacked":
             return u.state in ["stand", "moving", "falling", "stunned"]
+        if action == "collide":
+            return u.state in ["stand", "moving", "falling", "stunned", "attack_move"]
 
     def get_distance(pos1, pos2):
         return math.hypot(pos1[0] - pos2[0], pos1[1] - pos2[1])
@@ -121,6 +123,7 @@ def sandbox(game):
                         formation_order = 0
                         frmt_sighn = 1
                         for sel_unit in sel_units:
+                            sel_unit.attack_target = None
                             frmt_sighn = frmt_sighn * -1
                             sel_unit.target = (m_pos[0]+random.randint(1, 7), m_pos[1]+(formation_order*frmt_sighn))
                             formation_order += random.randint(1, 7) + sel_unit.body_height
@@ -162,7 +165,7 @@ def sandbox(game):
             attack_targets = []
             if unit_able_to(unit, "attack"):
                 for unit2 in units:
-                    if unit.id == unit2.id:
+                    if unit.id == unit2.id or unit.team == unit2.team:
                         continue
                     if unit_able_to(unit2, "be_attacked") and get_distance(unit.rect.midbottom, unit2.rect.midbottom) < unit.enemy_detect_range:
                         attack_targets.append(unit2)
@@ -178,9 +181,9 @@ def sandbox(game):
                 unit.attack_target = attack_targets[0]
 
             for unit2 in units:
-                if unit.id == unit2.id:
+                if unit.id == unit2.id or not unit_able_to(unit, "collide"):
                     continue
-                if unit.half_rect.colliderect(unit2.half_rect):
+                if unit.half_rect.colliderect(unit2.half_rect) and unit_able_to(unit, "collide"):
                     if unit.half_rect.center[0] > unit2.half_rect.center[0]:
                         unit.rect.x += collision_speed_x
                         unit2.rect.x -= collision_speed_x
@@ -197,19 +200,6 @@ def sandbox(game):
                         unit.rect.y -= collision_speed_y
                         unit2.rect.y += collision_speed_y
                         unit.target = (unit.target[0], unit.target[1] - collision_speed_y)
-
-            # if unit.team != unit2.team and unit_able_to(unit2, "be_attacked") and unit_able_to(unit, "attack"):
-            #     if unit.attack_rect.colliderect(unit2.rect):
-            #         a_targets[unit2.id] = math.hypot(unit.rect.x - unit2.rect.x, unit.rect.y - unit2.rect.y)
-            #     elif not unit.attack_rect.colliderect(unit2.rect) and unit2.id in a_targets:
-            #         del a_targets[unit2.id]
-            # if len(a_targets) > 0:
-            #     a_trgt = get_unit_by_id(min(a_targets, key=a_targets.get))
-            #     if unit.state == "stand":
-            #         close_to_attack_target(unit, a_trgt)
-            #         unit.attack_target = a_trgt
-            # else:
-            #     unit.attack_target = None
-
-            screen.blit(game.font.render(str(unit.state), False, (155, 55, 55)), (unit.rect.topleft[0], unit.rect.topleft[1] - 10))
+            screen.blit(game.font.render(str(unit.state), False, (155, 55, 55)), (unit.rect.topleft[0], unit.rect.topleft[1] - 50))
+            screen.blit(game.font.render(str(unit.hp), False, (55, 55, 55)), (unit.rect.topleft[0] - 20, unit.rect.topleft[1] - 10))
         pygame.display.update()
