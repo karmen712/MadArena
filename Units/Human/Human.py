@@ -130,7 +130,7 @@ class Human:
             if self.selected:
                 draw.ellipse(screen, options.team_colors[self.team], self.half_rect, 4)
                 # draw.circle(screen, options.team_colors[self.team], self.rect.midbottom, self.attack_range, 2)
-                draw.circle(screen, options.team_colors[self.team], self.rect.midbottom, self.enemy_detect_range, 1)
+                # draw.circle(screen, options.team_colors[self.team], self.rect.midbottom, self.enemy_detect_range, 1)
             else:
                 draw.ellipse(screen, options.team_colors[self.team], self.half_rect, 1)
         elif self.state != "dead":
