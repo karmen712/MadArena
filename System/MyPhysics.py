@@ -44,7 +44,7 @@ class Physics:
                     unit.z -= unit.yspeed
 
         if unit.z > 0.0:
-            if unit.state not in ["drag", "dead"]:
+            if unit.state not in ["drag", "dead", "attack"]:
                 unit.state = "falling"
             unit.yvel = self.gravity
 
