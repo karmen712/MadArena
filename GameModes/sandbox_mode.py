@@ -15,7 +15,7 @@ def sandbox(game):
 
     screen = game.screen
     w, h = screen.get_size()
-    timer = pygame.time.Clock()
+    #timer = pygame.time.Clock()
     bg = Background(resource_path('Media/Images/Backgrounds/Sandbox_bg.png'), [0, 0], game.WIN_WIDTH, game.WIN_HEIGHT)
     available_units = [{'color': (25, 146, 47), 'text': 'hooman', 'team': 1},
                        {'color': (140, 4, 47), 'text': 'human', 'team': 2}
@@ -68,9 +68,9 @@ def sandbox(game):
         if action == "attack":
             return u.state in ["stand", "attack_move"] and u.attack_target is None
         if action == "be_attacked":
-            return u.state in ["stand", "moving", "falling", "stunned"]
+            return u.state in ["stand", "moving", "falling", "stunned", "attack"]
         if action == "collide":
-            return u.state in ["stand", "moving", "falling", "stunned", "attack_move"]
+            return u.state in ["stand", "moving", "falling", "stunned", "attack_move", "attack"]
 
     def get_distance(pos1, pos2):
         return math.hypot(pos1[0] - pos2[0], pos1[1] - pos2[1])
@@ -78,8 +78,8 @@ def sandbox(game):
     while 1:  # Основной цикл программы
         if game.state != "Sandbox":
             break
-        timer.tick(40)
-        second += 100
+        pygame.time.wait(milliseconds)
+        second += milliseconds
         m_pos = pygame.mouse.get_pos()
 
         screen.blit(bg.image, bg.rect)  # Каждую итерацию необходимо всё перерисовывать
@@ -93,8 +93,6 @@ def sandbox(game):
             pygame.draw.rect(screen, (30, 200, 10), sel_rect, 1)
         if drag:
             dragged.move_ip(m_pos)
-            if sea_border_y > m_pos[1]:
-                dragged.z = sea_border_y - m_pos[1]
         # region EVENT DETECTION ---------------------------------------------------------------------------------
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
@@ -107,9 +105,11 @@ def sandbox(game):
                         drag = False
                         dragged.move_ip(m_pos)
                         if sea_border_y > m_pos[1]:
+                            dragged.z = sea_border_y - m_pos[1] + dragged.rect.height
                             dragged.state = "falling"
                         else:
                             dragged.state = "stand"
+                            dragged.target = dragged.rect.midbottom
                         dragged = None
                     elif selecting:
                         selecting = False
@@ -125,6 +125,8 @@ def sandbox(game):
                     if m_pos[1] > sea_border_y:
                         formation_order = 0
                         frmt_sighn = 1
+                        if len(sel_units) == 1:
+                            sel_units[0].target = m_pos
                         for sel_unit in sel_units:
                             sel_unit.attack_target = None
                             frmt_sighn = frmt_sighn * -1
@@ -142,7 +144,7 @@ def sandbox(game):
                     selecting = True
                     sel_pos_start = m_pos
         # endregion
-        if second == 1000:
+        if second == 250:
             second = 0
             sort_units()
         for unit in units:
@@ -171,8 +173,8 @@ def sandbox(game):
             for unit2 in units:
                 if unit.id == unit2.id or not unit_able_to(unit, "collide"):
                     continue
-                if unit.half_rect.colliderect(unit2.half_rect) and unit_able_to(unit, "collide"):
+                if unit.half_rect.colliderect(unit2.half_rect) and unit_able_to(unit, "collide") and unit_able_to(unit2, "collide"):
                     phys.collide_units(unit, unit2)
-            screen.blit(game.font.render(str(unit.state), False, (155, 55, 55)), (unit.rect.topleft[0], unit.rect.topleft[1] - 50))
-            screen.blit(game.font.render(str(unit.xvel), False, (55, 55, 55)), (unit.rect.topleft[0] - 20, unit.rect.topleft[1] - 10))
+            screen.blit(game.font.render(str(unit.state), False, (155, 55, 55)), (unit.rect.topleft[0], unit.rect.topleft[1] - 30))
+            screen.blit(game.font.render(str(unit.hp), False, (55, 55, 55)), (unit.rect.topleft[0] - 20, unit.rect.topleft[1] - 10))
         pygame.display.update()
