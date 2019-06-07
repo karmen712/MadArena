@@ -139,6 +139,7 @@ def sandbox(game):
                                         if uni.half_rect.collidepoint(m_pos):
                                             pygame.draw.ellipse(screen, team_colors[uni.team], uni.half_rect, 0)
                                             sel_unit.attack_target = uni
+                                            sel_unit.find_point_to_attack(order=True)
             if (e.type == pygame.MOUSEBUTTONDOWN) and (e.button == 1):
                 if usb.rect.collidepoint(m_pos):
                     for u_btn in u_btns:

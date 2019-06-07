@@ -61,8 +61,8 @@ class Human:
         self.animations.Attack_right.stop()
         self.state = "stand"
 
-    def find_point_to_attack(self):
-        if self.end_fight():
+    def find_point_to_attack(self, order=False):
+        if self.end_fight() and not order:
             self.stop_attacking()
             return
 
