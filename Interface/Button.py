@@ -4,12 +4,13 @@ from System.resoursepath import resource_path
 
 
 class Button:
-    def __init__(self, loc, width, height, bordercolor, borderwidth=1, fillcolor=None, text=None,
+    def __init__(self, loc, width, height, bordercolor, borderwidth=1, fillcolor=None, text=None, centered=True,
                  textcolor=None, textsize=10, textfont='Comic Sans MS', focusbrightness=0, icon=None, data=None):
         self.rect = Rect(loc[0], loc[1], width, height)
         self.fillrect = Rect(loc[0]+borderwidth, loc[1]+borderwidth, width-borderwidth, height-borderwidth)
-        self.rect.center = loc
-        self.fillrect.center = loc
+        if centered:
+            self.rect.center = loc
+            self.fillrect.center = loc
         self.bordercolor = bordercolor
         self.borderwidth = borderwidth
         self.fillcolor = fillcolor
@@ -55,7 +56,7 @@ class Button:
                 text2 = self.font.render(self.text, False, (0, 0, 0))
             else:
                 text2 = self.font.render(self.text, False, self.textcolor)
-            text2rect = text2.get_rect(center=(self.loc[0], self.loc[1]))
+            text2rect = text2.get_rect(center=self.rect.center)
             screen.blit(text2, text2rect)
         if focused:
             self.bordercolor = (

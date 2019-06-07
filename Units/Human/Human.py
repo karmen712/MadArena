@@ -33,7 +33,7 @@ class Human:
         self.move_speed_y = 1.0
         self.selected = False
         self.state = state
-        self.target = self.rect.center
+        self.target = self.half_rect.center
         self.team = team
         # region VELOCITY, SPEED AND Z
         self.xvel = 0.0

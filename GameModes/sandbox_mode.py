@@ -35,6 +35,9 @@ def sandbox(game):
     sel_pos_start = (0, 0)
     sea_border_y = game.WIN_HEIGHT * 0.5
     # transparent_surface = pygame.Surface((w, h), pygame.SRCALPHA)
+    auto_spawn_switch = Button(usb.rect.bottomleft, 120, 20, (165, 165, 165), fillcolor=(185, 185, 185), centered=False,
+                               textsize=12, text="Автоспавн: выкл.", textfont="TimesNewRoman", focusbrightness=40, borderwidth=2)
+    auto_spawn = False
 
     offset = usb.rect.left + 5
     btn_width = w / 16
@@ -46,7 +49,13 @@ def sandbox(game):
         u_btns.append(btn)
         offset += (5 + btn_width)
 
+    def create_unit(pos, team):
+        lcu = Human.Human(pos, 100, "stand", team)
+        lcu.id = len(units)
+        units.append(lcu)
+
     def draw_buttons():
+        auto_spawn_switch.draw(screen, m_pos)
         for u_bt in u_btns:
             u_bt.draw(screen, m_pos)
 
@@ -148,6 +157,13 @@ def sandbox(game):
                             dragged = Human.Human(m_pos, 100, "drag", u_btn.data)
                             dragged.id = len(units)
                             units.append(dragged)
+                if auto_spawn_switch.rect.collidepoint(m_pos):
+                    if auto_spawn:
+                        auto_spawn_switch.text = "Автоспавн: выкл."
+                        auto_spawn = False
+                    else:
+                        auto_spawn_switch.text = "Автоспавн: вкл."
+                        auto_spawn = True
                 elif not selecting:
                     selecting = True
                     sel_pos_start = m_pos
@@ -155,6 +171,9 @@ def sandbox(game):
         if second == 250:
             second = 0
             sort_units()
+            if auto_spawn:
+                if random.randint(1, 6) == 4:
+                    create_unit((random.randint(10, game.WIN_WIDTH), random.randint(sea_border_y, game.WIN_HEIGHT)), random.randint(1, 2))
         for unit in units:
             unit.draw(screen)
             phys.border_intersect(unit, sea_border_y, game.WIN_WIDTH, game.WIN_HEIGHT)
