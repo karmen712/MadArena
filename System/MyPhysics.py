@@ -9,15 +9,22 @@ class Physics:
         self.gravity = gravity
 
     def speed_regulation(self, unit):
-        if abs(unit.xvel) <= self.friction:
-            unit.xvel = 0
-        if abs(unit.yvel) <= self.gravity:
-            unit.yvel = 0
 
-        unit.xspeed += unit.xvel
+        if unit.xvel != 0:
+            unit.xspeed += unit.xvel
+            if unit.xvel > 0:
+                unit.xvel -= self.friction
+            elif unit.xvel < 0:
+                unit.xvel += self.friction
+            elif abs(unit.xvel) <= self.friction:
+                unit.xvel = 0
+
+        if unit.yvel != 0:
+            unit.yspeed += unit.yvel
+            if unit.yvel < self.gravity:
+                unit.yvel += self.gravity
 
         if unit.xspeed != 0:
-            print(unit.xspeed)
             unit.rect.move_ip(unit.xspeed, 0)
             if unit.state != "moving":
                 if abs(unit.xspeed) <= self.friction:
@@ -30,31 +37,22 @@ class Physics:
 
         if unit.yspeed != 0:
             unit.rect.move_ip(0, unit.yspeed)
-            if unit.yspeed > 0 and unit.state != "moving":
-                unit.z -= unit.yspeed
-            elif unit.yspeed < 0 and unit.state != "moving":
-                unit.z += unit.yspeed
+            if unit.state != "moving":
+                if unit.yspeed < 0:
+                    unit.z += abs(unit.yspeed)
+                elif unit.yspeed > 0:
+                    unit.z -= unit.yspeed
 
-        if unit.xvel > self.friction:
-            unit.xvel -= self.friction
-        elif unit.xvel < self.friction:
-            unit.xvel += self.friction
-
-        if unit.yvel > self.gravity:
-            unit.yspeed += unit.yvel
-            unit.yvel -= self.gravity
-        elif unit.yvel < self.gravity:
-            unit.yspeed += unit.yvel
-            unit.yvel += self.gravity
-
-        if unit.z > 0:
-            if unit.state != "drag":
+        if unit.z > 0.0:
+            if unit.state not in ["drag", "dead"]:
                 unit.state = "falling"
-            unit.yspeed += self.gravity
-        elif unit.z < 0:
-            unit.yspeed = 0
-            unit.yvel = 0
+            unit.yvel = self.gravity
+
+        elif unit.z < 0.0:
+            unit.yspeed = 0.0
+            unit.yvel = 0.0
             unit.target = unit.rect.midbottom
+            unit.z = 0.0
 
     @staticmethod
     def border_intersect(unit, border_y, w, h):
@@ -76,8 +74,8 @@ class Physics:
 
     @staticmethod
     def collide_units(unit, unit2):
-        collision_speed_x = unit.move_speed_x + 2
-        collision_speed_y = unit.move_speed_y + 2
+        collision_speed_x = unit.move_speed_x + 1
+        collision_speed_y = unit.move_speed_y + 1
         if unit.half_rect.center[0] > unit2.half_rect.center[0]:
             unit.rect.x += collision_speed_x
             unit2.rect.x -= collision_speed_x
