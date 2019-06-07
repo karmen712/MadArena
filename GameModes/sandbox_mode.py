@@ -28,6 +28,7 @@ def sandbox(game):
     selecting = False
     u_btns = []
     usb = UnitSelectBar((w, h))
+    player_team = 1
     second = 0
     random.seed(a='4x4x4x4x')
     sel_rect = pygame.Rect(0, 0, 0, 0)
@@ -66,7 +67,7 @@ def sandbox(game):
 
     def unit_able_to(u, action):
         if action == "attack":
-            return u.state in ["stand", "attack_move"] and u.attack_target is None
+            return u.state in ["stand", "attack_move"]
         if action == "be_attacked":
             return u.state in ["stand", "moving", "falling", "stunned", "attack"]
         if action == "collide":
@@ -116,22 +117,28 @@ def sandbox(game):
                         clear_selection()
                         sel_rect.normalize()
                         for unit in units:
-                            if unit.rect.colliderect(sel_rect) and unit.team == 1:
+                            if unit.rect.colliderect(sel_rect) and unit.team == player_team:
                                 unit.selected = True
                                 sel_units.append(unit)
                     else:
                         clear_selection()
                 if e.button == 3:
                     if m_pos[1] > sea_border_y:
-                        formation_order = 0
-                        frmt_sighn = 1
-                        if len(sel_units) == 1:
-                            sel_units[0].target = m_pos
-                        for sel_unit in sel_units:
-                            sel_unit.attack_target = None
-                            frmt_sighn = frmt_sighn * -1
-                            sel_unit.target = (m_pos[0]+random.randint(1, 7), m_pos[1]+(formation_order*frmt_sighn))
-                            formation_order += random.randint(1, 7) + sel_unit.body_height
+                        if len(sel_units) > 0:
+                            formation_order = 0
+                            frmt_sighn = 1
+                            if len(sel_units) == 1:
+                                sel_units[0].target = m_pos
+                            for sel_unit in sel_units:
+                                sel_unit.attack_target = None
+                                frmt_sighn = frmt_sighn * -1
+                                sel_unit.target = (m_pos[0]+random.randint(1, 7), m_pos[1]+(formation_order*frmt_sighn))
+                                formation_order += random.randint(1, 7) + sel_unit.body_height
+                                for uni in units:
+                                    if uni.team != player_team:
+                                        if uni.half_rect.collidepoint(m_pos):
+                                            pygame.draw.ellipse(screen, team_colors[uni.team], uni.half_rect, 0)
+                                            sel_unit.attack_target = uni
             if (e.type == pygame.MOUSEBUTTONDOWN) and (e.button == 1):
                 if usb.rect.collidepoint(m_pos):
                     for u_btn in u_btns:
@@ -175,6 +182,7 @@ def sandbox(game):
                     continue
                 if unit.half_rect.colliderect(unit2.half_rect) and unit_able_to(unit, "collide") and unit_able_to(unit2, "collide"):
                     phys.collide_units(unit, unit2)
-            screen.blit(game.font.render(str(unit.state), False, (155, 55, 55)), (unit.rect.topleft[0], unit.rect.topleft[1] - 30))
-            screen.blit(game.font.render(str(unit.hp), False, (55, 55, 55)), (unit.rect.topleft[0] - 20, unit.rect.topleft[1] - 10))
+            if unit.state != "dead":
+                screen.blit(game.font.render(str(unit.state), False, (55, 55, 55)), (unit.rect.topleft[0], unit.rect.topleft[1] - 30))
+                screen.blit(game.font.render(str(unit.hp), False, (55, 55, 55)), (unit.rect.topleft[0] - 10, unit.rect.topleft[1] - 20))
         pygame.display.update()
