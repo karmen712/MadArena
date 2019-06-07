@@ -78,17 +78,13 @@ class Physics:
         collision_speed_y = unit.move_speed_y + 1
         if unit.half_rect.center[0] > unit2.half_rect.center[0]:
             unit.rect.x += collision_speed_x
-            unit2.rect.x -= collision_speed_x
             unit.target = (unit.target[0] + collision_speed_x, unit.target[1])
         else:
             unit.rect.x -= collision_speed_x
-            unit2.rect.x += collision_speed_x
             unit.target = (unit.target[0] - collision_speed_x, unit.target[1])
         if unit.half_rect.center[1] > unit2.half_rect.center[1]:
             unit.rect.y += collision_speed_y
-            unit2.rect.y -= collision_speed_y
             unit.target = (unit.target[0], unit.target[1] + collision_speed_y)
         else:
             unit.rect.y -= collision_speed_y
-            unit2.rect.y += collision_speed_y
             unit.target = (unit.target[0], unit.target[1] - collision_speed_y)
