@@ -126,7 +126,7 @@ def sandbox(game):
                         clear_selection()
                         sel_rect.normalize()
                         for unit in units:
-                            if unit.rect.colliderect(sel_rect) and unit.team == player_team:
+                            if unit.half_rect.colliderect(sel_rect) and unit.team == player_team:
                                 unit.selected = True
                                 sel_units.append(unit)
                     else:
@@ -157,7 +157,7 @@ def sandbox(game):
                             dragged = Human.Human(m_pos, 100, "drag", u_btn.data)
                             dragged.id = len(units)
                             units.append(dragged)
-                if auto_spawn_switch.rect.collidepoint(m_pos):
+                elif auto_spawn_switch.rect.collidepoint(m_pos):
                     if auto_spawn:
                         auto_spawn_switch.text = "Автоспавн: выкл."
                         auto_spawn = False
@@ -172,8 +172,7 @@ def sandbox(game):
             second = 0
             sort_units()
             if auto_spawn:
-                if random.randint(1, 6) == 4:
-                    create_unit((random.randint(10, game.WIN_WIDTH), random.randint(sea_border_y, game.WIN_HEIGHT)), random.randint(1, 2))
+                create_unit((random.randint(10, game.WIN_WIDTH), random.randint(sea_border_y, game.WIN_HEIGHT)), random.randint(1, 2))
         for unit in units:
             unit.draw(screen)
             phys.border_intersect(unit, sea_border_y, game.WIN_WIDTH, game.WIN_HEIGHT)

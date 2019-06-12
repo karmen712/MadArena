@@ -74,8 +74,8 @@ class Physics:
 
     @staticmethod
     def collide_units(unit, unit2):
-        collision_speed_x = unit.move_speed_x + 1
-        collision_speed_y = unit.move_speed_y + 1
+        collision_speed_x = unit.move_speed_x
+        collision_speed_y = unit.move_speed_y
         if unit.half_rect.center[0] > unit2.half_rect.center[0]:
             unit.rect.x += collision_speed_x
             unit.target = (unit.target[0] + collision_speed_x, unit.target[1])
