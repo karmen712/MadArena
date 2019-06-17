@@ -21,6 +21,8 @@ class Human:
         self.body_height = self.rect.height * 0.23
         self.dir = random.randint(0, 1)  # 0 - LEFT 1- RIGHT
         self.enemy_detect_range = 150
+        self.energy_shield_cur = 0
+        self.energy_shield_max = 0
         self.half_rect = self.rect.copy()
         self.half_rect.height = self.body_height
         self.half_rect.center = self.rect.midbottom
@@ -90,6 +92,18 @@ class Human:
                 ty -= self.attack_target.body_height
         self.target = (tx, ty)
 
+    def deal_damage(self, amount, target):
+        if target.energy_shield_cur > 0:
+            if target.energy_shield_cur < amount:
+                target.hp -= amount - target.energy_shield_cur
+                target.energy_shield_cur = 0
+            else:
+                target.energy_shield_cur -= amount
+        else:
+            target.hp -= amount
+        if target.hp < 1:
+            target.killer = self
+
     def die(self):
         self.yvel = -4.0
         if self.killer.rect.center[0] > self.rect.center[0]:
@@ -114,9 +128,7 @@ class Human:
             self.set_dir_to(self.attack_target)
             self.attack_start()
             if self.get_dist_to_attack_trgt() <= self.attack_range and self.attack_target is not None:
-                self.attack_target.hp -= self.attack_damage
-                if self.attack_target.hp < 1:
-                    self.attack_target.killer = self
+                self.deal_damage(self.attack_damage, self.attack_target)
             if self.end_attacking() or not self.able_to_attack():
                 if self.end_fight():
                     self.attack_target = None
