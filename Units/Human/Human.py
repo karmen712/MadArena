@@ -114,9 +114,10 @@ class Human:
         self.target = self.rect.midbottom
         self.attack_target = None
         if self.dir == 0:
-            self.image = image.load(resource_path("Media/Sprites/Units/Human/human_dead_left.png"))
+            self.image = self.animations.Dead_left
         else:
-            self.image = image.load(resource_path("Media/Sprites/Units/Human/human_dead_right.png"))
+            self.image = self.animations.Dead_right
+        self.rect = self.image.get_rect(center=self.rect.center)
 
     def draw(self, screen):
         def draw_hp_bar():
@@ -170,15 +171,17 @@ class Human:
 
         elif self.state == "falling":
             if self.dir == 0:
-                self.image = image.load(resource_path("Media/Sprites/Units/Human/human_falling_left.png"))
+                screen.blit(self.animations.Falling_left, self.rect)
             else:
-                self.image = image.load(resource_path("Media/Sprites/Units/Human/human_falling_right.png"))
-            screen.blit(self.image, self.rect)
+                screen.blit(self.animations.Falling_right, self.rect)
             if self.z <= 0.0:
                 self.state = "stand"
 
         elif self.state == "dead":
-            screen.blit(self.image, self.rect)
+            if self.dir == 0:
+                screen.blit(self.animations.Dead_left, self.rect)
+            else:
+                screen.blit(self.animations.Dead_right, self.rect)
 
         elif self.state == "attack":
             if self.end_fight():

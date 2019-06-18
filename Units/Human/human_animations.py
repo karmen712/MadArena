@@ -1,4 +1,5 @@
 from System.resoursepath import resource_path
+from pygame import image
 import pyganim
 
 
@@ -49,8 +50,12 @@ class HumanAnimations:
         self.Attack_left._rate = self.speed
         self.Attack_right = pyganim.PygAnimation(self.Attack_right_pic, loop=False)
         self.Attack_right._rate = self.speed
+        self.Dead_left = image.load(resource_path("Media/Sprites/Units/Human/human_dead_left.png"))
+        self.Dead_right = image.load(resource_path("Media/Sprites/Units/Human/human_dead_right.png"))
         self.Drag = pyganim.PygAnimation(self.Drag_pic)
         self.Drag.play()
+        self.Falling_right = image.load(resource_path("Media/Sprites/Units/Human/human_falling_right.png"))
+        self.Falling_left = image.load(resource_path("Media/Sprites/Units/Human/human_falling_left.png"))
         self.Stand_right = pyganim.PygAnimation(self.Stand_right_pic)
         self.Stand_right._rate = self.speed
         self.Stand_right.play()
