@@ -5,6 +5,7 @@ from System.resoursepath import resource_path
 from GameHUD.unit_select_bar import UnitSelectBar
 from Interface.Button import Button
 from Units.Human import Human
+from Units.Skeleton import skeleton
 import random
 import math
 from System.MyPhysics import Physics
@@ -17,8 +18,10 @@ def sandbox(game):
     w, h = screen.get_size()
     #timer = pygame.time.Clock()
     bg = Background(resource_path('Media/Images/Backgrounds/Sandbox_bg.png'), [0, 0], game.WIN_WIDTH, game.WIN_HEIGHT)
-    available_units = [{'color': (25, 146, 47), 'text': 'hooman', 'team': 1},
-                       {'color': (140, 4, 47), 'text': 'human', 'team': 2}
+    available_units = [{'color': (25, 146, 47), 'text': 'human 1', 'unit': 'human', 'team': 1},
+                       {'color': (140, 4, 47), 'text': 'human 2', 'unit': 'human', 'team': 2},
+                       {'color': (25, 146, 47), 'text': 'skeleton 1', 'unit': 'skeleton', 'team': 1},
+                       {'color': (140, 4, 47), 'text': 'skeleton 2', 'unit': 'skeleton', 'team': 2},
                        ]
     phys = Physics(friction, gravity)
     units = []
@@ -45,7 +48,7 @@ def sandbox(game):
     for a_unit in available_units:
         btn_pos = offset + (btn_width / 2), (usb.rect.top + 5) + ((usb.rect.height - 10) / 2)
         btn = Button(btn_pos, btn_width, usb.rect.height - 10, (165, 165, 165), fillcolor=a_unit['color'],
-                     text=a_unit['text'], focusbrightness=90, data=a_unit['team'])
+                     text=a_unit['text'], focusbrightness=90, data=(a_unit['unit'], a_unit['team']))
         u_btns.append(btn)
         offset += (5 + btn_width)
 
@@ -84,6 +87,12 @@ def sandbox(game):
 
     def get_distance(pos1, pos2):
         return math.hypot(pos1[0] - pos2[0], pos1[1] - pos2[1])
+
+    def create_unit_from_button(btn_data):
+        if btn_data[0] == 'human':
+            return Human.Human(m_pos, 100, "drag", btn_data[1])
+        elif btn_data[0] == 'skeleton':
+            return skeleton.Skeleton(m_pos, 70, "drag", btn_data[1])
 
     while 1:  # Основной цикл программы
         if game.state != "Sandbox":
@@ -154,7 +163,7 @@ def sandbox(game):
                     for u_btn in u_btns:
                         if u_btn.fillrect.collidepoint(m_pos):
                             drag = True
-                            dragged = Human.Human(m_pos, 100, "drag", u_btn.data)
+                            dragged = create_unit_from_button(u_btn.data)
                             dragged.id = len(units)
                             units.append(dragged)
                 elif auto_spawn_switch.rect.collidepoint(m_pos):
