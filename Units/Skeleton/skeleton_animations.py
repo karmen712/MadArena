@@ -1,6 +1,7 @@
 from System.resoursepath import resource_path
 from pygame import image, transform
 import pyganim
+import random
 
 
 class SkeletonAnimations:
@@ -21,18 +22,36 @@ class SkeletonAnimations:
                          (resource_path("Media/Sprites/Units/Skeleton/Walk/skeleton_walk3.png"), 200),
                          (resource_path("Media/Sprites/Units/Skeleton/Walk/skeleton_walk4.png"), 200)]
 
-        self.Attack_pic = [(resource_path("Media/Sprites/Units/Skeleton/Attack/skeleton_attack1.png"), 300),
-                           (resource_path("Media/Sprites/Units/Skeleton/Attack/skeleton_attack2.png"), 300),
-                           (resource_path("Media/Sprites/Units/Skeleton/Attack/skeleton_attack3.png"), 300),
-                           (resource_path("Media/Sprites/Units/Skeleton/Attack/skeleton_attack4.png"), 300)]
+        self.Attack1_pic = [(resource_path("Media/Sprites/Units/Skeleton/Attack/Attack1/skeleton_attack1.png"), 300),
+                            (resource_path("Media/Sprites/Units/Skeleton/Attack/Attack1/skeleton_attack2.png"), 300),
+                            (resource_path("Media/Sprites/Units/Skeleton/Attack/Attack1/skeleton_attack3.png"), 300),
+                            (resource_path("Media/Sprites/Units/Skeleton/Attack/Attack1/skeleton_attack4.png"), 300)]
 
-        self.Attack_right = pyganim.PygAnimation(self.Attack_pic, loop=False)
-        self.Attack_right._rate = self.speed
+        self.Attack2_pic = [(resource_path("Media/Sprites/Units/Skeleton/Attack/Attack2/skeleton_attack1.png"), 300),
+                            (resource_path("Media/Sprites/Units/Skeleton/Attack/Attack2/skeleton_attack2.png"), 300),
+                            (resource_path("Media/Sprites/Units/Skeleton/Attack/Attack2/skeleton_attack3.png"), 300),
+                            (resource_path("Media/Sprites/Units/Skeleton/Attack/Attack1/skeleton_attack4.png"), 300)]
 
-        self.Attack_left = pyganim.PygAnimation(self.Attack_pic, loop=False)
-        self.Attack_left.anchor(anchorPoint='center')
-        self.Attack_left.flip(True, False)
-        self.Attack_left._rate = self.speed
+        self.Attack1_right = pyganim.PygAnimation(self.Attack1_pic, loop=False)
+        self.Attack1_right._rate = self.speed
+
+        self.Attack1_left = pyganim.PygAnimation(self.Attack1_pic, loop=False)
+        self.Attack1_left.anchor(anchorPoint=pyganim.CENTER)
+        self.Attack1_left.flip(True, False)
+        self.Attack1_left._rate = self.speed
+        self.Attack1_left.makeTransformsPermanent()
+        self.Attack1_left.clearTransforms()
+
+        self.Attack2_right = pyganim.PygAnimation(self.Attack2_pic, loop=False)
+        self.Attack2_right._rate = self.speed
+
+        self.Attack2_left = pyganim.PygAnimation(self.Attack2_pic, loop=False)
+        self.Attack2_left.anchor(anchorPoint=pyganim.CENTER)
+        self.Attack2_left.flip(True, False)
+        self.Attack2_left._rate = self.speed
+        self.Attack2_left.makeTransformsPermanent()
+        self.Attack2_left.clearTransforms()
+        self.Attack_anim_cur = self.Attack1_right
 
         self.Dead_right = image.load(resource_path("Media/Sprites/Units/Skeleton/skeleton_dead.png"))
         self.Dead_left = transform.flip(image.load(resource_path("Media/Sprites/Units/Skeleton/skeleton_dead.png")), True, False)
@@ -49,13 +68,13 @@ class SkeletonAnimations:
         self.Stand_right.play()
 
         self.Stand_left = pyganim.PygAnimation(self.Stand_pic)
-        self.Stand_left.anchor(anchorPoint='center')
+        self.Stand_left.anchor(anchorPoint='c')
         self.Stand_left.flip(True, False)
         self.Stand_left._rate = self.speed
         self.Stand_left.play()
 
         self.Walk_left = pyganim.PygAnimation(self.Walk_pic)
-        self.Walk_left.anchor(anchorPoint='center')
+        self.Walk_left.anchor(anchorPoint='c')
         self.Walk_left.flip(True, False)
         self.Walk_left._rate = self.speed
         self.Walk_left.play()
@@ -63,6 +82,22 @@ class SkeletonAnimations:
         self.Walk_right = pyganim.PygAnimation(self.Walk_pic)
         self.Walk_right.play()
         self.Walk_right._rate = self.speed
+
+    def attack_anims_con(self, action, dirr):
+        if dirr == 0:
+            if random.randint(1, 2) == 1:
+                self.Attack_anim_cur = self.Attack1_left
+            else:
+                self.Attack_anim_cur = self.Attack2_left
+        else:
+            if random.randint(1, 2) == 1:
+                self.Attack_anim_cur = self.Attack1_right
+            else:
+                self.Attack_anim_cur = self.Attack2_right
+        if action == "stop":
+            self.Attack_anim_cur.stop()
+        elif action == "play":
+            self.Attack_anim_cur.play()
 
     def get_anim_speed(self, anim):
         anim_array = self.Attack_pic

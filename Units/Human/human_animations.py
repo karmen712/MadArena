@@ -50,6 +50,8 @@ class HumanAnimations:
         self.Attack_left._rate = self.speed
         self.Attack_right = pyganim.PygAnimation(self.Attack_right_pic, loop=False)
         self.Attack_right._rate = self.speed
+        self.Attack_anim_cur = self.Attack_right
+
         self.Dead_left = image.load(resource_path("Media/Sprites/Units/Human/human_dead_left.png"))
         self.Dead_right = image.load(resource_path("Media/Sprites/Units/Human/human_dead_right.png"))
         self.Drag = pyganim.PygAnimation(self.Drag_pic)
@@ -68,6 +70,17 @@ class HumanAnimations:
         self.Walk_right = pyganim.PygAnimation(self.Walk_right_pic)
         self.Walk_right.play()
         self.Walk_right._rate = self.speed
+
+    def attack_anims_con(self, action, dirr):
+        if dirr == 0:
+            if self.Attack_anim_cur != self.Attack_left:
+                self.Attack_anim_cur = self.Attack_left
+        elif self.Attack_anim_cur != self.Attack_right:
+            self.Attack_anim_cur = self.Attack_right
+        if action == "stop":
+            self.Attack_anim_cur.stop()
+        elif action == "play":
+            self.Attack_anim_cur.play()
 
     def get_anim_speed(self, anim):
         anim_array = self.Attack_left_pic
