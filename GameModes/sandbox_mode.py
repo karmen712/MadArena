@@ -18,10 +18,8 @@ def sandbox(game):
     w, h = screen.get_size()
     #timer = pygame.time.Clock()
     bg = Background(resource_path('Media/Images/Backgrounds/Sandbox_bg.png'), [0, 0], game.WIN_WIDTH, game.WIN_HEIGHT)
-    available_units = [{'color': (25, 146, 47), 'text': 'human 1', 'unit': 'human', 'team': 1},
-                       {'color': (140, 4, 47), 'text': 'human 2', 'unit': 'human', 'team': 2},
-                       {'color': (25, 146, 47), 'text': 'skeleton 1', 'unit': 'skeleton', 'team': 1},
-                       {'color': (140, 4, 47), 'text': 'skeleton 2', 'unit': 'skeleton', 'team': 2},
+    available_units = [{'color': (140, 100, 95), 'text': 'human', 'unit': 'human'},
+                       {'color': (163, 164, 167), 'text': 'skeleton', 'unit': 'skeleton'},
                        ]
     phys = Physics(friction, gravity)
     units = []
@@ -38,18 +36,21 @@ def sandbox(game):
     sel_pos_start = (0, 0)
     sea_border_y = game.WIN_HEIGHT * 0.5
     # transparent_surface = pygame.Surface((w, h), pygame.SRCALPHA)
-    auto_spawn_switch = Button(usb.rect.bottomleft, 120, 20, (165, 165, 165), fillcolor=(185, 185, 185), centered=False,
+    auto_spawn_switch = Button(usb.rect.midbottom, 120, 20, (165, 165, 165), fillcolor=(185, 185, 185), centered=False,
                                textsize=12, text="Автоспавн: выкл.", textfont="TimesNewRoman", focusbrightness=40, borderwidth=2)
     auto_spawn = False
 
     offset = usb.rect.left + 5
     btn_width = w / 16
     unit_classes = [Human.Human, skeleton.Skeleton]
+    current_team = 1
+    team_select_switch = Button(usb.rect.bottomleft, 120, 20, (165, 165, 165), fillcolor=team_colors[current_team], centered=False,
+                                textsize=12, text="Команда:1", textfont="TimesNewRoman", focusbrightness=40, borderwidth=2)
 
     for a_unit in available_units:
         btn_pos = offset + (btn_width / 2), (usb.rect.top + 5) + ((usb.rect.height - 10) / 2)
         btn = Button(btn_pos, btn_width, usb.rect.height - 10, (165, 165, 165), fillcolor=a_unit['color'],
-                     text=a_unit['text'], focusbrightness=90, data=(a_unit['unit'], a_unit['team']))
+                     text=a_unit['text'], focusbrightness=90, data=(a_unit['unit']))
         u_btns.append(btn)
         offset += (5 + btn_width)
 
@@ -60,6 +61,7 @@ def sandbox(game):
 
     def draw_buttons():
         auto_spawn_switch.draw(screen, m_pos)
+        team_select_switch.draw(screen, m_pos)
         for u_bt in u_btns:
             u_bt.draw(screen, m_pos)
 
@@ -90,10 +92,10 @@ def sandbox(game):
         return math.hypot(pos1[0] - pos2[0], pos1[1] - pos2[1])
 
     def get_unit_from_button(btn_data):
-        if btn_data[0] == 'human':
-            return Human.Human(m_pos, "drag", btn_data[1])
-        elif btn_data[0] == 'skeleton':
-            return skeleton.Skeleton(m_pos, "drag", btn_data[1])
+        if btn_data == 'human':
+            return Human.Human(m_pos, "drag", current_team)
+        elif btn_data == 'skeleton':
+            return skeleton.Skeleton(m_pos, "drag", current_team)
 
     while 1:  # Основной цикл программы
         if game.state != "Sandbox":
@@ -168,12 +170,22 @@ def sandbox(game):
                             dragged.id = len(units)
                             units.append(dragged)
                 elif auto_spawn_switch.rect.collidepoint(m_pos):
+                    clear_selection()
                     if auto_spawn:
                         auto_spawn_switch.text = "Автоспавн: выкл."
                         auto_spawn = False
                     else:
                         auto_spawn_switch.text = "Автоспавн: вкл."
                         auto_spawn = True
+                elif team_select_switch.rect.collidepoint(m_pos):
+                    clear_selection()
+                    if current_team < len(team_colors):
+                        current_team += 1
+                    else:
+                        current_team = 1
+                    team_select_switch.text = team_select_switch.text[0:7] + str(current_team)
+                    team_select_switch.fillcolor = team_colors[current_team]
+                    player_team = current_team
                 elif not selecting:
                     selecting = True
                     sel_pos_start = m_pos
@@ -182,7 +194,8 @@ def sandbox(game):
             second = 0
             sort_units()
             if auto_spawn:
-                create_unit(unit_classes[random.randint(0, len(unit_classes)-1)], (random.randint(10, game.WIN_WIDTH), random.randint(sea_border_y, game.WIN_HEIGHT)), random.randint(1, 2))
+                create_unit(unit_classes[random.randint(0, len(unit_classes)-1)], (random.randint(10, game.WIN_WIDTH),
+                            random.randint(sea_border_y, game.WIN_HEIGHT)), random.randint(1, len(team_colors)))
         for unit in units:
             unit.draw(screen)
             phys.border_intersect(unit, sea_border_y, game.WIN_WIDTH, game.WIN_HEIGHT)

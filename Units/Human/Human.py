@@ -114,8 +114,8 @@ class Human:
 
     def draw(self, screen):
         def draw_hp_bar():
-            draw.rect(screen, options.team_colors[self.team], Rect(self.rect.x + 2, self.rect.y - 12, (self.hp_max / 4) + 2, 3), 1)  # контур полоски hp
-            draw.rect(screen, (70, 200, 70), Rect(self.rect.x + 3, self.rect.y - 11, self.hp / 4, 1), 0)             # текущее количество hp
+            draw.rect(screen, options.team_colors[self.team], Rect(self.rect.x + 2, self.rect.y - 12, (self.hp_max / 4) + 2, 4), 1)  # контур полоски hp
+            draw.rect(screen, (70, 200, 70), Rect(self.rect.x + 3, self.rect.y - 11, self.hp / 4, 2), 0)             # текущее количество hp
 
         def land_hit():
             # draw.circle(screen, (0, 0, 255), self.rect.center, 15, 0)
