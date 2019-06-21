@@ -5,11 +5,13 @@ from Units.Skeleton.skeleton_animations import SkeletonAnimations
 
 
 class Skeleton(Human):
-    def __init__(self, pos, max_hp, state, team):
-        super().__init__(pos, max_hp, state, team)
+    def __init__(self, pos, state, team):
+        super().__init__(pos, state, team)
         self.animations = SkeletonAnimations(100)
         self.image = image.load(resource_path("Media/Sprites/Units/Skeleton/skeleton.png"))
         self.rect = self.image.get_rect(center=pos)
         self.attack_damage = 5
+        self.hp_max = 50
+        self.hp = self.hp_max
         self.name = "Skeleton"
 

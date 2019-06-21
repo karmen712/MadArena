@@ -7,7 +7,7 @@ from Units.Human.human_animations import HumanAnimations
 
 
 class Human:
-    def __init__(self, pos, max_hp, state, team):
+    def __init__(self, pos, state, team):
         self.image = image.load(resource_path("Media/Sprites/Units/Human/human.png"))
         self.rect = self.image.get_rect(center=pos)
 
@@ -26,10 +26,10 @@ class Human:
         self.half_rect = self.rect.copy()
         self.half_rect.height = self.body_height
         self.half_rect.center = self.rect.midbottom
-        self.hp = max_hp
+        self.hp_max = 70
+        self.hp = self.hp_max
         self.id = None
         self.killer = None
-        self.max_hp = max_hp
         self.moving = False
         self.move_speed_x = 2.0
         self.move_speed_y = 1.0
@@ -114,7 +114,7 @@ class Human:
 
     def draw(self, screen):
         def draw_hp_bar():
-            draw.rect(screen, options.team_colors[self.team], Rect(self.rect.x + 2, self.rect.y - 12, (self.max_hp / 4) + 2, 3), 1)  # контур полоски hp
+            draw.rect(screen, options.team_colors[self.team], Rect(self.rect.x + 2, self.rect.y - 12, (self.hp_max / 4) + 2, 3), 1)  # контур полоски hp
             draw.rect(screen, (70, 200, 70), Rect(self.rect.x + 3, self.rect.y - 11, self.hp / 4, 1), 0)             # текущее количество hp
 
         def land_hit():

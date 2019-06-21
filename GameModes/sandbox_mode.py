@@ -54,7 +54,7 @@ def sandbox(game):
         offset += (5 + btn_width)
 
     def create_unit(unit_to_create, pos, team):
-        lcu = unit_to_create(pos, 100, "stand", team)
+        lcu = unit_to_create(pos, "stand", team)
         lcu.id = len(units)
         units.append(lcu)
 
@@ -91,9 +91,9 @@ def sandbox(game):
 
     def get_unit_from_button(btn_data):
         if btn_data[0] == 'human':
-            return Human.Human(m_pos, 100, "drag", btn_data[1])
+            return Human.Human(m_pos, "drag", btn_data[1])
         elif btn_data[0] == 'skeleton':
-            return skeleton.Skeleton(m_pos, 70, "drag", btn_data[1])
+            return skeleton.Skeleton(m_pos, "drag", btn_data[1])
 
     while 1:  # Основной цикл программы
         if game.state != "Sandbox":
