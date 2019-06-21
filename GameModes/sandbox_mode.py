@@ -44,6 +44,7 @@ def sandbox(game):
 
     offset = usb.rect.left + 5
     btn_width = w / 16
+    unit_classes = [Human.Human, skeleton.Skeleton]
 
     for a_unit in available_units:
         btn_pos = offset + (btn_width / 2), (usb.rect.top + 5) + ((usb.rect.height - 10) / 2)
@@ -52,8 +53,8 @@ def sandbox(game):
         u_btns.append(btn)
         offset += (5 + btn_width)
 
-    def create_unit(pos, team):
-        lcu = Human.Human(pos, 100, "stand", team)
+    def create_unit(unit_to_create, pos, team):
+        lcu = unit_to_create(pos, 100, "stand", team)
         lcu.id = len(units)
         units.append(lcu)
 
@@ -88,7 +89,7 @@ def sandbox(game):
     def get_distance(pos1, pos2):
         return math.hypot(pos1[0] - pos2[0], pos1[1] - pos2[1])
 
-    def create_unit_from_button(btn_data):
+    def get_unit_from_button(btn_data):
         if btn_data[0] == 'human':
             return Human.Human(m_pos, 100, "drag", btn_data[1])
         elif btn_data[0] == 'skeleton':
@@ -163,7 +164,7 @@ def sandbox(game):
                     for u_btn in u_btns:
                         if u_btn.fillrect.collidepoint(m_pos):
                             drag = True
-                            dragged = create_unit_from_button(u_btn.data)
+                            dragged = get_unit_from_button(u_btn.data)
                             dragged.id = len(units)
                             units.append(dragged)
                 elif auto_spawn_switch.rect.collidepoint(m_pos):
@@ -181,7 +182,7 @@ def sandbox(game):
             second = 0
             sort_units()
             if auto_spawn:
-                create_unit((random.randint(10, game.WIN_WIDTH), random.randint(sea_border_y, game.WIN_HEIGHT)), random.randint(1, 2))
+                create_unit(unit_classes[random.randint(0, len(unit_classes)-1)], (random.randint(10, game.WIN_WIDTH), random.randint(sea_border_y, game.WIN_HEIGHT)), random.randint(1, 2))
         for unit in units:
             unit.draw(screen)
             phys.border_intersect(unit, sea_border_y, game.WIN_WIDTH, game.WIN_HEIGHT)
