@@ -15,7 +15,7 @@ class Human:
         self.animations = HumanAnimations(100)
         # region ATTACK
         self.attack_damage = 10
-        self.attack_range = int(15 + self.rect.width/2)
+        self.attack_range = int(5 + self.rect.width/2)
         self.attack_target = None
         # endregion
         self.body_height = self.rect.height * 0.18
@@ -72,7 +72,7 @@ class Human:
             return
 
         x1, y1 = self.rect.midbottom
-        tx, ty = x2, y2 = self.attack_target.rect.midbottom  # tx, ty = target x, target y
+        x2, y2 = self.attack_target.rect.midbottom  # tx, ty = target x, target y
 
         if x1 < x2:
             tx = x2 - self.attack_range
@@ -80,9 +80,9 @@ class Human:
             tx = x2 + self.attack_range
 
         if y1 < y2:
-            ty = y2 - (self.attack_target.body_height / 2) + (self.body_height / 2)
+            ty = y2 - (self.attack_target.body_height / 2)
         else:
-            ty = y2 + (self.attack_target.body_height / 2) + (self.body_height / 2)
+            ty = y2 + (self.attack_target.body_height / 2)
         self.target = (tx, ty)
 
     def deal_damage(self, amount, target):
