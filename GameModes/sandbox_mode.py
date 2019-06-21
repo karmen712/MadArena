@@ -123,8 +123,8 @@ def sandbox(game):
                     if drag:
                         drag = False
                         dragged.move_ip(m_pos)
-                        if sea_border_y > m_pos[1]:
-                            dragged.z = sea_border_y - m_pos[1] + dragged.rect.height
+                        if sea_border_y > dragged.half_rect.center[1]:
+                            dragged.z = sea_border_y - dragged.half_rect.center[1]
                             dragged.state = "falling"
                         else:
                             dragged.state = "stand"
