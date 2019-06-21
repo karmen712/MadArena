@@ -15,10 +15,10 @@ class Human:
         self.animations = HumanAnimations(100)
         # region ATTACK
         self.attack_damage = 10
-        self.attack_range = 45
+        self.attack_range = int(15 + self.rect.width/2)
         self.attack_target = None
         # endregion
-        self.body_height = self.rect.height * 0.23
+        self.body_height = self.rect.height * 0.18
         self.dir = random.randint(0, 1)  # 0 - LEFT 1- RIGHT
         self.enemy_detect_range = 150
         self.energy_shield_cur = 0
@@ -33,6 +33,7 @@ class Human:
         self.moving = False
         self.move_speed_x = 2.0
         self.move_speed_y = 1.0
+        self.name = "Human"
         self.selected = False
         self.state = state
         self.target = self.half_rect.center
@@ -53,14 +54,12 @@ class Human:
             and self.attack_target.state != "dead" and self.in_target_y_width()
 
     def attack_start(self):
-        self.animations.Attack_left.play()
-        self.animations.Attack_right.play()
         self.set_dir_to(self.attack_target)
+        self.animations.attack_anims_con("play", self.dir)
         self.state = "attack"
 
     def attack_stop(self):
-        self.animations.Attack_left.stop()
-        self.animations.Attack_right.stop()
+        self.animations.attack_anims_con("stop", self.dir)
         self.state = "stand"
 
     def find_point_to_attack(self, order=False):
@@ -73,23 +72,17 @@ class Human:
             return
 
         x1, y1 = self.rect.midbottom
-        x2, y2 = self.attack_target.rect.midbottom
+        tx, ty = x2, y2 = self.attack_target.rect.midbottom  # tx, ty = target x, target y
 
-        distance_to_move = (self.get_dist_to_attack_trgt() - self.attack_range) + (self.attack_target.rect.width/2)
-        offset_mul = (distance_to_move / self.get_dist_to_attack_trgt())
+        if x1 < x2:
+            tx = x2 - self.attack_range
+        else:
+            tx = x2 + self.attack_range
 
-        tx = x1 + offset_mul*(x2-x1)
-        ty = y1 + offset_mul*(y2-y1)
-        if not self.in_target_y_width() and self.get_dist_to_attack_trgt() <= self.attack_range:
-            if x1 - self.rect.width < x2 < x1 + self.rect.width:
-                if x1 < x2:
-                    tx += self.rect.width/2
-                else:
-                    tx -= self.rect.width/2
-            if y1 < y2:
-                ty += self.attack_target.body_height
-            else:
-                ty -= self.attack_target.body_height
+        if y1 < y2:
+            ty = y2 - (self.attack_target.body_height / 2) + (self.body_height / 2)
+        else:
+            ty = y2 + (self.attack_target.body_height / 2) + (self.body_height / 2)
         self.target = (tx, ty)
 
     def deal_damage(self, amount, target):
@@ -174,7 +167,7 @@ class Human:
                 screen.blit(self.animations.Falling_left, self.rect)
             else:
                 screen.blit(self.animations.Falling_right, self.rect)
-            if self.z <= 0.0:
+            if self.z <= 0.0 and self.hp > 0:
                 self.state = "stand"
 
         elif self.state == "dead":
@@ -186,17 +179,10 @@ class Human:
         elif self.state == "attack":
             if self.end_fight():
                 self.attack_stop()
-            if self.dir == 0:
-                if self.animations.Attack_left.isFinished():
-                    land_hit()
-                    return
-                self.animations.Attack_left.blit(screen, (self.rect.x, self.rect.y))
-            else:
-                if self.animations.Attack_right.isFinished():
-                    land_hit()
-                    return
-                self.animations.Attack_right.blit(screen, (self.rect.x, self.rect.y))
-
+            if self.animations.Attack_anim_cur.isFinished():
+                land_hit()
+                return
+            self.animations.Attack_anim_cur.blit(screen, self.rect)
         elif self.state == "attack_move":
             pass
 
@@ -218,16 +204,16 @@ class Human:
 
     def get_dist_to_attack_trgt(self):
         if self.attack_target is not None:
-            return self.get_distance(self.rect.midbottom, self.attack_target.rect.midbottom)
+            return self.get_distance(self.rect.midbottom, self.attack_target.rect.midbottom) - self.rect.width/2 - self.attack_target.rect.width/2
         else:
             return 0
 
     def in_target_y_width(self):
         if self.attack_target is None:
             return False
-        selfy = self.rect.midbottom[1]
-        trgty = self.attack_target.rect.midbottom[1]
-        trgth = self.attack_target.body_height
+        selfy = self.half_rect.center[1]
+        trgty = self.attack_target.half_rect.center[1]
+        trgth = self.attack_target.body_height / 2 + self.body_height / 2
         return trgty + trgth > selfy > trgty - trgth
 
     def move_ip(self, pos):
@@ -262,15 +248,16 @@ class Human:
     def walk_to_target(self):
         bx, by = self.rect.midbottom
         tx, ty = self.target
-        x_condition = bx - (self.half_rect.width/4) <= tx <= bx + (self.half_rect.width/4)
-        y_condition = by - (self.body_height/4) <= ty <= by + (self.body_height/4)
+        x_condition = bx - (self.half_rect.width/5) <= tx <= bx + (self.half_rect.width/5)
+        y_condition = by - (self.body_height/5) <= ty <= by + (self.body_height/5)
 
         if not self.end_fight():
             self.find_point_to_attack()
 
         if x_condition and y_condition:
             self.stop_moving()
-            self.state = "stand"
+            if self.end_fight():
+                self.state = "stand"
             return
         if x_condition:
             self.xspeed = 0.0
