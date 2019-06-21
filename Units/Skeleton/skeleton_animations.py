@@ -30,7 +30,7 @@ class SkeletonAnimations:
         self.Attack2_pic = [(resource_path("Media/Sprites/Units/Skeleton/Attack/Attack2/skeleton_attack1.png"), 300),
                             (resource_path("Media/Sprites/Units/Skeleton/Attack/Attack2/skeleton_attack2.png"), 300),
                             (resource_path("Media/Sprites/Units/Skeleton/Attack/Attack2/skeleton_attack3.png"), 300),
-                            (resource_path("Media/Sprites/Units/Skeleton/Attack/Attack1/skeleton_attack4.png"), 300)]
+                            (resource_path("Media/Sprites/Units/Skeleton/Attack/Attack2/skeleton_attack4.png"), 300)]
 
         self.Attack1_right = pyganim.PygAnimation(self.Attack1_pic, loop=False)
         self.Attack1_right._rate = self.speed
@@ -50,7 +50,6 @@ class SkeletonAnimations:
         self.Attack2_left.flip(True, False)
         self.Attack2_left._rate = self.speed
         self.Attack2_left.makeTransformsPermanent()
-        self.Attack2_left.clearTransforms()
         self.Attack_anim_cur = self.Attack1_right
 
         self.Dead_right = image.load(resource_path("Media/Sprites/Units/Skeleton/skeleton_dead.png"))

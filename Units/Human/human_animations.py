@@ -1,6 +1,7 @@
 from System.resoursepath import resource_path
 from pygame import image
 import pyganim
+import random
 
 
 class HumanAnimations:
@@ -46,10 +47,25 @@ class HumanAnimations:
                                   (resource_path("Media/Sprites/Units/Human/Attack/Attack1/Right/human_attack_right4.png"), 200),
                                   (resource_path("Media/Sprites/Units/Human/Attack/Attack1/Right/human_attack_right3.png"), 300)]
 
+        self.Attack2_pic = [(resource_path("Media/Sprites/Units/Human/Attack/Attack2/human_attack2_1.png"), 600),
+                            (resource_path("Media/Sprites/Units/Human/Attack/Attack2/human_attack2_2.png"), 400),
+                            (resource_path("Media/Sprites/Units/Human/Attack/Attack2/human_attack2_3.png"), 200),
+                            (resource_path("Media/Sprites/Units/Human/Attack/Attack2/human_attack2_4.png"), 300)]
+
         self.Attack1_left = pyganim.PygAnimation(self.Attack1_left_pic, loop=False)
         self.Attack1_left._rate = self.speed
         self.Attack1_right = pyganim.PygAnimation(self.Attack1_right_pic, loop=False)
         self.Attack1_right._rate = self.speed
+
+        self.Attack2_right = pyganim.PygAnimation(self.Attack2_pic, loop=False)
+        self.Attack2_right._rate = self.speed
+
+        self.Attack2_left = pyganim.PygAnimation(self.Attack2_pic, loop=False)
+        self.Attack2_left.anchor(anchorPoint=pyganim.CENTER)
+        self.Attack2_left.flip(True, False)
+        self.Attack2_left._rate = self.speed
+        self.Attack2_left.makeTransformsPermanent()
+
         self.Attack_anim_cur = self.Attack1_right
 
         self.Dead_left = image.load(resource_path("Media/Sprites/Units/Human/human_dead_left.png"))
@@ -73,10 +89,15 @@ class HumanAnimations:
 
     def attack_anims_con(self, action, dirr):
         if dirr == 0:
-            if self.Attack_anim_cur != self.Attack1_left:
+            if random.randint(1, 2) == 1:
                 self.Attack_anim_cur = self.Attack1_left
-        elif self.Attack_anim_cur != self.Attack1_right:
-            self.Attack_anim_cur = self.Attack1_right
+            else:
+                self.Attack_anim_cur = self.Attack2_left
+        else:
+            if random.randint(1, 2) == 1:
+                self.Attack_anim_cur = self.Attack1_right
+            else:
+                self.Attack_anim_cur = self.Attack2_right
         if action == "stop":
             self.Attack_anim_cur.stop()
         elif action == "play":
