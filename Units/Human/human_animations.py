@@ -36,21 +36,21 @@ class HumanAnimations:
                                (resource_path("Media/Sprites/Units/Human/Walk/Right/human_walk_right4.png"), 200),
                                (resource_path("Media/Sprites/Units/Human/Walk/Right/human_walk_right5.png"), 200)]
 
-        self.Attack_left_pic = [(resource_path("Media/Sprites/Units/Human/Attack/Left/human_attack_left1.png"), 600),
-                                (resource_path("Media/Sprites/Units/Human/Attack/Left/human_attack_left2.png"), 400),
-                                (resource_path("Media/Sprites/Units/Human/Attack/Left/human_attack_left4.png"), 200),
-                                (resource_path("Media/Sprites/Units/Human/Attack/Left/human_attack_left3.png"), 300)]
+        self.Attack1_left_pic = [(resource_path("Media/Sprites/Units/Human/Attack/Attack1/Left/human_attack_left1.png"), 600),
+                                 (resource_path("Media/Sprites/Units/Human/Attack/Attack1/Left/human_attack_left2.png"), 400),
+                                 (resource_path("Media/Sprites/Units/Human/Attack/Attack1/Left/human_attack_left4.png"), 200),
+                                 (resource_path("Media/Sprites/Units/Human/Attack/Attack1/Left/human_attack_left3.png"), 300)]
 
-        self.Attack_right_pic = [(resource_path("Media/Sprites/Units/Human/Attack/Right/human_attack_right1.png"), 600),
-                                 (resource_path("Media/Sprites/Units/Human/Attack/Right/human_attack_right2.png"), 400),
-                                 (resource_path("Media/Sprites/Units/Human/Attack/Right/human_attack_right4.png"), 200),
-                                 (resource_path("Media/Sprites/Units/Human/Attack/Right/human_attack_right3.png"), 300)]
+        self.Attack1_right_pic = [(resource_path("Media/Sprites/Units/Human/Attack/Attack1/Right/human_attack_right1.png"), 600),
+                                  (resource_path("Media/Sprites/Units/Human/Attack/Attack1/Right/human_attack_right2.png"), 400),
+                                  (resource_path("Media/Sprites/Units/Human/Attack/Attack1/Right/human_attack_right4.png"), 200),
+                                  (resource_path("Media/Sprites/Units/Human/Attack/Attack1/Right/human_attack_right3.png"), 300)]
 
-        self.Attack_left = pyganim.PygAnimation(self.Attack_left_pic, loop=False)
-        self.Attack_left._rate = self.speed
-        self.Attack_right = pyganim.PygAnimation(self.Attack_right_pic, loop=False)
-        self.Attack_right._rate = self.speed
-        self.Attack_anim_cur = self.Attack_right
+        self.Attack1_left = pyganim.PygAnimation(self.Attack1_left_pic, loop=False)
+        self.Attack1_left._rate = self.speed
+        self.Attack1_right = pyganim.PygAnimation(self.Attack1_right_pic, loop=False)
+        self.Attack1_right._rate = self.speed
+        self.Attack_anim_cur = self.Attack1_right
 
         self.Dead_left = image.load(resource_path("Media/Sprites/Units/Human/human_dead_left.png"))
         self.Dead_right = image.load(resource_path("Media/Sprites/Units/Human/human_dead_right.png"))
@@ -73,20 +73,20 @@ class HumanAnimations:
 
     def attack_anims_con(self, action, dirr):
         if dirr == 0:
-            if self.Attack_anim_cur != self.Attack_left:
-                self.Attack_anim_cur = self.Attack_left
-        elif self.Attack_anim_cur != self.Attack_right:
-            self.Attack_anim_cur = self.Attack_right
+            if self.Attack_anim_cur != self.Attack1_left:
+                self.Attack_anim_cur = self.Attack1_left
+        elif self.Attack_anim_cur != self.Attack1_right:
+            self.Attack_anim_cur = self.Attack1_right
         if action == "stop":
             self.Attack_anim_cur.stop()
         elif action == "play":
             self.Attack_anim_cur.play()
 
     def get_anim_speed(self, anim):
-        anim_array = self.Attack_left_pic
+        anim_array = self.Attack1_left_pic
         ms_sum = 0
         if anim == "Attack":
-            anim_array = self.Attack_left_pic
+            anim_array = self.Attack1_left_pic
         for frame in anim_array:
             ms_sum += frame[1]
         return ms_sum

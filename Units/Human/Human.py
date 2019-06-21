@@ -234,7 +234,6 @@ class Human:
             self.dir = 1
 
     def stop_attacking(self):
-        self.stop_moving()
         self.attack_target = None
         self.state = "stand"
 
