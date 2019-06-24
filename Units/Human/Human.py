@@ -182,7 +182,14 @@ class Human:
             if self.animations.Attack_anim_cur.isFinished():
                 land_hit()
                 return
-            self.animations.Attack_anim_cur.blit(screen, self.rect)
+            if self.dir == 0:
+                frm_x = self.animations.Attack_anim_cur.getCurrentFrame().get_width() - self.rect.width
+                if frm_x > 0:
+                    self.animations.Attack_anim_cur.blit(screen, (self.rect.x - frm_x/2, self.rect.y))
+                else:
+                    self.animations.Attack_anim_cur.blit(screen, self.rect)
+            else:
+                self.animations.Attack_anim_cur.blit(screen, self.rect)
         elif self.state == "attack_move":
             pass
 
