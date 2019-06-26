@@ -96,6 +96,8 @@ class Human:
             target.hp -= amount
         if target.hp < 1:
             target.killer = self
+        if hasattr(target, 'attack_target') and target.attack_target is None:
+            target.attack_target = self
 
     def die(self):
         self.yvel = -4.0
@@ -116,17 +118,6 @@ class Human:
         def draw_hp_bar():
             draw.rect(screen, options.team_colors[self.team], Rect(self.rect.x + 2, self.rect.y - 12, (self.hp_max / 4) + 2, 4), 1)  # контур полоски hp
             draw.rect(screen, (70, 200, 70), Rect(self.rect.x + 3, self.rect.y - 11, self.hp / 4, 2), 0)             # текущее количество hp
-
-        def land_hit():
-            # draw.circle(screen, (0, 0, 255), self.rect.center, 15, 0)
-            self.set_dir_to(self.attack_target)
-            self.attack_start()
-            if self.get_dist_to_attack_trgt() <= self.attack_range and self.attack_target is not None:
-                self.deal_damage(self.attack_damage, self.attack_target)
-            if self.end_attacking() or not self.able_to_attack():
-                if self.end_fight():
-                    self.attack_target = None
-                self.attack_stop()
 
         self.half_rect.center = self.rect.midbottom
         if self.hp > 0:
@@ -180,7 +171,7 @@ class Human:
             if self.end_fight():
                 self.attack_stop()
             if self.animations.Attack_anim_cur.isFinished():
-                land_hit()
+                self.land_hit()
                 return
             if self.dir == 0:
                 frm_x = self.animations.Attack_anim_cur.getCurrentFrame().get_width() - self.rect.width
@@ -222,6 +213,16 @@ class Human:
         trgty = self.attack_target.half_rect.center[1]
         trgth = self.attack_target.body_height / 2 + self.body_height / 2
         return trgty + trgth > selfy > trgty - trgth
+
+    def land_hit(self):
+        self.set_dir_to(self.attack_target)
+        self.attack_start()
+        if self.get_dist_to_attack_trgt() <= self.attack_range and self.attack_target is not None:
+            self.deal_damage(self.attack_damage, self.attack_target)
+        if self.end_attacking() or not self.able_to_attack():
+            if self.end_fight():
+                self.attack_target = None
+            self.attack_stop()
 
     def move_ip(self, pos):
         self.rect.topright = pos
