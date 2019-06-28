@@ -29,6 +29,7 @@ class Human:
         self.hp_max = 70
         self.hp = self.hp_max
         self.id = None
+        self.items = []
         self.killer = None
         self.moving = False
         self.move_speed_x = 2.0
@@ -98,6 +99,7 @@ class Human:
             target.killer = self
         if hasattr(target, 'attack_target') and target.attack_target is None:
             target.attack_target = self
+            target.find_point_to_attack(order=True)
 
     def die(self):
         self.yvel = -4.0
@@ -118,6 +120,9 @@ class Human:
         def draw_hp_bar():
             draw.rect(screen, options.team_colors[self.team], Rect(self.rect.x + 2, self.rect.y - 12, (self.hp_max / 4) + 2, 4), 1)  # контур полоски hp
             draw.rect(screen, (70, 200, 70), Rect(self.rect.x + 3, self.rect.y - 11, self.hp / 4, 2), 0)             # текущее количество hp
+
+        for item in self.items:
+            item.draw(screen)
 
         self.half_rect.center = self.rect.midbottom
         if self.hp > 0:

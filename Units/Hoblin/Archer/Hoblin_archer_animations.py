@@ -32,7 +32,7 @@ class HoblinArcherAnimations:
                            (resource_path("Media/Sprites/Units/Hoblin/Archer/attack/hoblin_attack_5.png"), 200),
                            (resource_path("Media/Sprites/Units/Hoblin/Archer/attack/hoblin_attack_6.png"), 200),
                            (resource_path("Media/Sprites/Units/Hoblin/Archer/attack/hoblin_attack_7.png"), 200),
-                           (resource_path("Media/Sprites/Units/Hoblin/Archer/attack/hoblin_attack_8.png"), 400)
+                           (resource_path("Media/Sprites/Units/Hoblin/Archer/attack/hoblin_attack_8.png"), 200)
                            ]
 
         self.Attack1_right = pyganim.PygAnimation(self.Attack_pic, loop=False)
