@@ -48,14 +48,13 @@ class HoblinArcherAnimations:
         self.Attack_anim_cur = self.Attack1_right
 
         self.Dead_left = image.load(resource_path("Media/Sprites/Units/Hoblin/Archer/hoblin_archer_dead.png"))
-        self.Dead_right = transform.flip(image.load(resource_path("Media/Sprites/Units/Hoblin/Archer/hoblin_archer_dead.png")), True, False)
+        self.Dead_right = transform.flip(self.Dead_left, True, False)
 
         self.Drag = pyganim.PygAnimation(self.Drag_pic)
         self.Drag.play()
 
         self.Falling_right = image.load(resource_path("Media/Sprites/Units/Hoblin/Archer/hoblin_archer_falling.png"))
-        self.Falling_left = image.load(resource_path("Media/Sprites/Units/Hoblin/Archer/hoblin_archer_falling.png"))
-        transform.flip(self.Falling_left, True, False)
+        self.Falling_left = transform.flip(self.Falling_right, True, False)
 
         self.Stand_right = pyganim.PygAnimation(self.Stand_pic)
         self.Stand_right._rate = self.speed
