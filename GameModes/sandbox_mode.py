@@ -12,6 +12,7 @@ from System.MyPhysics import Physics
 from Menus.options import *
 from Units.Hoblin.Archer.Hoblin_archer import HoblinArcher
 from Units.Special.arena_cleaners import MeatHoover
+from  Effects.static_effects import BloodSplat
 
 
 def sandbox(game):
@@ -26,6 +27,7 @@ def sandbox(game):
                        ]
     phys = Physics(friction, gravity)
     units = []
+    effects = []
     sel_units = []
     drag = False
     dragged = None
@@ -73,6 +75,10 @@ def sandbox(game):
         for u_bt in u_btns:
             u_bt.draw(screen, m_pos)
 
+    def draw_effects():
+        for effect in effects:
+            effect.draw(screen)
+
     def sort_units():
         def sort_by_y(val):
             return val.half_rect.y
@@ -117,6 +123,7 @@ def sandbox(game):
         screen.blit(bg.image, bg.rect)  # Каждую итерацию необходимо всё перерисовывать
         usb.draw(screen)
         draw_buttons()
+        draw_effects()
 
         if selecting:
             sel_rect.topleft = sel_pos_start
@@ -134,6 +141,7 @@ def sandbox(game):
                         arena_cleaner.deal_damage(du)
                     else:
                         units.remove(du)
+                        effects.append(BloodSplat(du.rect.midbottom))
                         del du
                 else:
                     dist = get_distance(arena_cleaner.collector_rect.center, du.rect.center)
