@@ -11,6 +11,7 @@ import math
 from System.MyPhysics import Physics
 from Menus.options import *
 from Units.Hoblin.Archer.Hoblin_archer import HoblinArcher
+from Units.Special.arena_cleaners import MeatHoover
 
 
 def sandbox(game):
@@ -33,7 +34,7 @@ def sandbox(game):
     usb = UnitSelectBar((w, h))
     player_team = 1
     second = 0
-    random.seed(a='4x4x4x4x')
+    random.seed()
     sel_rect = pygame.Rect(0, 0, 0, 0)
     sel_pos_start = (0, 0)
     sea_border_y = game.WIN_HEIGHT * 0.5
@@ -48,6 +49,10 @@ def sandbox(game):
     current_team = 1
     team_select_switch = Button(usb.rect.bottomleft, 120, 20, (165, 165, 165), fillcolor=team_colors[current_team], centered=False,
                                 textsize=12, text="Команда:1", textfont="TimesNewRoman", focusbrightness=40, borderwidth=2)
+    clean_arena_button = Button((team_select_switch.rect.topright[0] + 20, team_select_switch.rect.topright[1]), 120, 20, (165, 165, 165), fillcolor=(70, 150, 150), centered=False,
+                                textsize=12, text="Очистить", textfont="TimesNewRoman", focusbrightness=40, borderwidth=2)
+    arena_cleaning = False
+    arena_cleaner = None
 
     for a_unit in available_units:
         btn_pos = offset + (btn_width / 2), (usb.rect.top + 5) + ((usb.rect.height - 10) / 2)
@@ -64,6 +69,7 @@ def sandbox(game):
     def draw_buttons():
         auto_spawn_switch.draw(screen, m_pos)
         team_select_switch.draw(screen, m_pos)
+        clean_arena_button.draw(screen, m_pos)
         for u_bt in u_btns:
             u_bt.draw(screen, m_pos)
 
@@ -119,6 +125,30 @@ def sandbox(game):
             pygame.draw.rect(screen, (30, 200, 10), sel_rect, 1)
         if drag:
             dragged.move_ip(m_pos)
+        if arena_cleaning:
+            arena_cleaner.draw(screen)
+            mx, my = arena_cleaner.collector_rect.center
+            for du in units:
+                if du.rect.colliderect(arena_cleaner.collector_rect):
+                    if du.hp > 0:
+                        arena_cleaner.deal_damage(du)
+                    else:
+                        units.remove(du)
+                        del du
+                else:
+                    dist = get_distance(arena_cleaner.collector_rect.center, du.rect.center)
+                    sp = arena_cleaner.seeking_speed
+                    dd = sp / dist
+                    dx, dy = dd * (mx - du.rect.center[0]), dd * (my - du.rect.center[1])
+
+                    du.rect.move_ip(dx, dy)
+
+            if game.WIN_WIDTH < arena_cleaner.rect.center[0] or arena_cleaner.rect.center[0] < 0:
+                clean_arena_button.text = "Очистить"
+                clean_arena_button.fillcolor = (70, 150, 150)
+                arena_cleaning = False
+                del arena_cleaner
+
         # region EVENT DETECTION ---------------------------------------------------------------------------------
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
@@ -190,6 +220,16 @@ def sandbox(game):
                     team_select_switch.text = team_select_switch.text[0:7] + str(current_team)
                     team_select_switch.fillcolor = team_colors[current_team]
                     player_team = current_team
+                elif clean_arena_button.rect.collidepoint(m_pos):
+                    if not arena_cleaning:
+                        clean_arena_button.text = "Очистка"
+                        clean_arena_button.fillcolor = (120, 120, 120)
+                        arena_cleaning = True
+                        arena_cleaner = MeatHoover((game.WIN_WIDTH - 80, ((game.WIN_HEIGHT - sea_border_y)/2)+(game.WIN_HEIGHT - sea_border_y)))
+                        if random.randint(1, 2) == 2:
+                            arena_cleaner.dir = 1
+                            arena_cleaner.speed = 4
+                            arena_cleaner.rect.x = 0
                 elif not selecting:
                     selecting = True
                     sel_pos_start = m_pos
