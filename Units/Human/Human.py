@@ -26,6 +26,7 @@ class Human:
         self.half_rect = self.rect.copy()
         self.half_rect.height = self.body_height
         self.half_rect.center = self.rect.midbottom
+        self.has_blood = True
         self.hp_max = 70
         self.hp = self.hp_max
         self.id = None

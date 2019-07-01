@@ -32,7 +32,7 @@ class MeatHoover:
         self.collector_rect = Rect(self.rect.bottomleft[0], self.rect.bottomleft[1] - self.rect.height/4, self.rect.height/4, self.rect.height/4)
         self.damage = 15
         self.dir = 0
-        self.seeking_speed = 7.7
+        self.seeking_speed = 8
         self.speed = -4
 
     def draw(self, screen):

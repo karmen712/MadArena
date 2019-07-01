@@ -11,6 +11,7 @@ class Skeleton(Human):
         self.image = image.load(resource_path("Media/Sprites/Units/Skeleton/skeleton.png"))
         self.rect = self.image.get_rect(center=pos)
         self.attack_damage = 5
+        self.has_blood = False
         self.hp_max = 50
         self.hp = self.hp_max
         self.name = "Skeleton"

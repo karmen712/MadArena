@@ -28,6 +28,7 @@ def sandbox(game):
     phys = Physics(friction, gravity)
     units = []
     effects = []
+    effects_to_clean = []
     sel_units = []
     drag = False
     dragged = None
@@ -141,15 +142,28 @@ def sandbox(game):
                         arena_cleaner.deal_damage(du)
                     else:
                         units.remove(du)
-                        effects.append(BloodSplat(du.rect.midbottom))
+                        if du.has_blood:
+                            effects.append(BloodSplat(arena_cleaner.collector_rect.center))
                         del du
                 else:
                     dist = get_distance(arena_cleaner.collector_rect.center, du.rect.center)
-                    sp = arena_cleaner.seeking_speed
-                    dd = sp / dist
-                    dx, dy = dd * (mx - du.rect.center[0]), dd * (my - du.rect.center[1])
-
-                    du.rect.move_ip(dx, dy)
+                    if dist < 450:
+                        sp = arena_cleaner.seeking_speed/(dist/100)
+                        dd = sp / dist
+                        dx, dy = dd * (mx - du.rect.center[0]), dd * (my - du.rect.center[1])
+                        du.rect.move_ip(dx, dy)
+            for eff in effects_to_clean:
+                if eff.rect.colliderect(arena_cleaner.collector_rect):
+                    effects.remove(eff)
+                    effects_to_clean.remove(eff)
+                    del eff
+                else:
+                    dist = get_distance(arena_cleaner.collector_rect.center, eff.rect.center)
+                    if dist < 350:
+                        sp = arena_cleaner.seeking_speed/(dist/100)
+                        dd = sp / dist
+                        dx, dy = dd * (mx - eff.rect.center[0]), dd * (my - eff.rect.center[1])
+                        eff.rect.move_ip(dx, dy)
 
             if game.WIN_WIDTH < arena_cleaner.rect.center[0] or arena_cleaner.rect.center[0] < 0:
                 clean_arena_button.text = "Очистить"
@@ -230,10 +244,11 @@ def sandbox(game):
                     player_team = current_team
                 elif clean_arena_button.rect.collidepoint(m_pos):
                     if not arena_cleaning:
+                        effects_to_clean = effects.copy()
                         clean_arena_button.text = "Очистка"
                         clean_arena_button.fillcolor = (120, 120, 120)
                         arena_cleaning = True
-                        arena_cleaner = MeatHoover((game.WIN_WIDTH - 80, ((game.WIN_HEIGHT - sea_border_y)/2)+(game.WIN_HEIGHT - sea_border_y)))
+                        arena_cleaner = MeatHoover((game.WIN_WIDTH - 80, ((game.WIN_HEIGHT - sea_border_y)/2)+(game.WIN_HEIGHT - sea_border_y)+random.randint(-100, 100)))
                         if random.randint(1, 2) == 2:
                             arena_cleaner.dir = 1
                             arena_cleaner.speed = 4
