@@ -26,7 +26,6 @@ class Human:
         self.half_rect = self.rect.copy()
         self.half_rect.height = self.body_height
         self.half_rect.center = self.rect.midbottom
-        self.has_blood = True
         self.hp_max = 70
         self.hp = self.hp_max
         self.id = None
@@ -36,6 +35,10 @@ class Human:
         self.move_speed_x = 2.0
         self.move_speed_y = 1.0
         self.name = "Human"
+        self.properties = {
+            "has_blood": True,
+            "has_attack": True
+        }
         self.selected = False
         self.state = state
         self.target = self.half_rect.center

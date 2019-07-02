@@ -142,7 +142,7 @@ def sandbox(game):
                         arena_cleaner.deal_damage(du)
                     else:
                         units.remove(du)
-                        if du.has_blood:
+                        if du.properties["has_blood"]:
                             effects.append(BloodSplat(arena_cleaner.collector_rect.center))
                         del du
                 else:
