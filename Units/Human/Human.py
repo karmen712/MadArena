@@ -4,22 +4,25 @@ from System.resoursepath import resource_path
 import random
 import Menus.options as options
 from Units.Human.human_animations import HumanAnimations
+from Abilities.ability_sample_classes import ParabollicTrajectory
 
 
 class Human:
     def __init__(self, pos, state, team):
         self.image = image.load(resource_path("Media/Sprites/Units/Human/human.png"))
         self.rect = self.image.get_rect(center=pos)
+        self.dir = random.randint(0, 1)  # 0 - LEFT 1- RIGHT
 
         # region SELF VARIABLES ----------------------------------------------------------
         self.animations = HumanAnimations(100)
+        self.abilities = []
         # region ATTACK
         self.attack_damage = 10
         self.attack_range = int(5 + self.rect.width/2)
         self.attack_target = None
         # endregion
         self.body_height = self.rect.height * 0.18
-        self.dir = random.randint(0, 1)  # 0 - LEFT 1- RIGHT
+        self.casting_ability = None
         self.enemy_detect_range = 150
         self.energy_shield_cur = 0
         self.energy_shield_max = 0
@@ -28,6 +31,8 @@ class Human:
         self.half_rect.center = self.rect.midbottom
         self.hp_max = 70
         self.hp = self.hp_max
+        self.hp_bar = [Rect(self.rect.x + 2, self.rect.y - 12, (self.hp_max / 4) + 2, 4),
+                       Rect(self.rect.x + 3, self.rect.y - 11, self.hp / 4, 2)]
         self.id = None
         self.items = []
         self.killer = None
@@ -58,6 +63,11 @@ class Human:
         return self.attack_target.hp > 0 and self.get_dist_to_attack_trgt() < self.attack_range\
             and self.attack_target.state != "dead" and self.in_target_y_width()
 
+    def able_to_cast(self):
+        if self.attack_target is None or self.casting_ability is None:
+            return False
+        return self.attack_target.hp > 0 and self.attack_target.state != "dead" and self.in_target_y_width()
+
     def attack_start(self):
         self.set_dir_to(self.attack_target)
         self.animations.attack_anims_con("play", self.dir)
@@ -68,6 +78,11 @@ class Human:
         self.state = "stand"
 
     def find_point_to_attack(self, order=False):
+        if not self.properties["has_attack"]:
+            if self.has_abilities_to_cast():
+                self.find_point_to_cast()
+            return
+
         if self.end_fight() and not order:
             self.stop_attacking()
             return
@@ -89,6 +104,51 @@ class Human:
         else:
             ty = y2 + (self.attack_target.body_height / 2)
         self.target = (tx, ty)
+
+    def find_point_to_cast(self, order=False):
+        if self.state == "casting":
+            return
+
+        if self.able_to_cast() or order:
+            self.animations.set_cur_dir(self.dir)
+            self.animations.Casting_anim_cur.play()
+            self.casting_ability.cast(self.attack_target)
+            return
+
+        x1, y1 = self.rect.midbottom
+        x2, y2 = self.attack_target.rect.midbottom  # tx, ty = target x, target y
+        tx = x1
+
+        self.casting_ability = None
+
+        for ab in self.abilities:
+            if ab.state == "ready":
+                if self.casting_ability is None or self.casting_ability.casting_distance < ab.casting_distance:
+                    self.casting_ability = ab
+
+        if self.casting_ability is not None:
+            if self.get_dist_to_attack_trgt() >= self.casting_ability.casting_distance:
+                extra_range = self.casting_ability.casting_distance
+                if x1 < x2:
+                    tx = x2 - extra_range
+                else:
+                    tx = x2 + extra_range
+        else:
+            return
+
+        if y1 < y2:
+            ty = y2 - (self.attack_target.body_height / 2)
+        else:
+            ty = y2 + (self.attack_target.body_height / 2)
+        self.target = (tx, ty)
+
+    def has_abilities_to_cast(self):
+        if len(self.abilities) == 0:
+            return False
+        for ab in self.abilities:
+            if ab.state == "ready":
+                    return True
+        return False
 
     def deal_damage(self, amount, target):
         if target.energy_shield_cur > 0:
@@ -122,11 +182,20 @@ class Human:
 
     def draw(self, screen):
         def draw_hp_bar():
-            draw.rect(screen, options.team_colors[self.team], Rect(self.rect.x + 2, self.rect.y - 12, (self.hp_max / 4) + 2, 4), 1)  # контур полоски hp
-            draw.rect(screen, (70, 200, 70), Rect(self.rect.x + 3, self.rect.y - 11, self.hp / 4, 2), 0)             # текущее количество hp
+            self.hp_bar = [Rect(self.rect.x + 2, self.rect.y - 12, (self.hp_max / 4) + 2, 4),
+                           Rect(self.rect.x + 3, self.rect.y - 11, self.hp / 4, 2)]
+            draw.rect(screen, options.team_colors[self.team], self.hp_bar[0], 1)  # контур полоски hp
+            draw.rect(screen, (70, 200, 70), self.hp_bar[1], 0)                   # текущее количество hp
 
         for item in self.items:
             item.draw(screen)
+
+        for ability in self.abilities:
+            ability_delta = 0
+            pos = self.hp_bar[0].x + ability_delta, self.hp_bar[0].y - 7
+            clr = (40, 250, 40) if ability.state == "ready" else (250, 40, 40)
+            draw.circle(screen, clr, pos, 3, 0)
+            ability.draw(screen)
 
         self.half_rect.center = self.rect.midbottom
         if self.hp > 0:
@@ -190,8 +259,12 @@ class Human:
                     self.animations.Attack_anim_cur.blit(screen, self.rect)
             else:
                 self.animations.Attack_anim_cur.blit(screen, self.rect)
+
         elif self.state == "attack_move":
             pass
+
+        elif self.state == "casting":
+            self.animations.Casting_anim_cur.blit(screen, self.rect)
 
     def end_attacking(self):
         if self.attack_target is None:
@@ -253,6 +326,7 @@ class Human:
     def stop_attacking(self):
         self.attack_target = None
         self.state = "stand"
+        self.casting_ability = None
 
     def stop_moving(self):
         self.xspeed = 0.0

@@ -47,6 +47,8 @@ class HoblinArcherAnimations:
 
         self.Attack_anim_cur = self.Attack1_right
 
+        self.Casting_anim_cur = self.Attack1_right
+
         self.Dead_left = image.load(resource_path("Media/Sprites/Units/Hoblin/Archer/hoblin_archer_dead.png"))
         self.Dead_right = transform.flip(self.Dead_left, True, False)
 
@@ -77,14 +79,18 @@ class HoblinArcherAnimations:
         self.Walk_right._rate = self.speed
 
     def attack_anims_con(self, action, dirr):
-        if dirr == 0:
-            self.Attack_anim_cur = self.Attack1_left
-        else:
-            self.Attack_anim_cur = self.Attack1_right
+        self.set_cur_dir(dirr)
         if action == "stop":
             self.Attack_anim_cur.stop()
         elif action == "play":
             self.Attack_anim_cur.play()
+
+    def casting_anim_control(self, action, dirr):
+        self.set_cur_dir(dirr)
+        if action == "stop":
+            self.Casting_anim_cur.stop()
+        elif action == "play":
+            self.Casting_anim_cur.play()
 
     def get_anim_speed(self, anim):
         anim_array = self.Attack_pic
@@ -94,4 +100,12 @@ class HoblinArcherAnimations:
         for frame in anim_array:
             ms_sum += frame[1]
         return ms_sum
+
+    def set_cur_dir(self, dirr):
+        if dirr == 0:
+            self.Attack_anim_cur = self.Attack1_left
+            self.Casting_anim_cur = self.Attack1_left
+        else:
+            self.Attack_anim_cur = self.Attack1_right
+            self.Casting_anim_cur = self.Attack1_left
 

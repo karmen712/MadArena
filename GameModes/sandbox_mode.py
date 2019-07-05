@@ -11,8 +11,9 @@ import math
 from System.MyPhysics import Physics
 from Menus.options import *
 from Units.Hoblin.Archer.Hoblin_archer import HoblinArcher
+from Units.Insects.Spiderling.spiderling import Spiderling
 from Units.Special.arena_cleaners import MeatHoover
-from  Effects.static_effects import BloodSplat
+from Effects.static_effects import BloodSplat
 
 
 def sandbox(game):
@@ -24,6 +25,7 @@ def sandbox(game):
     available_units = [{'color': (140, 100, 95), 'text': 'human', 'unit': 'human'},
                        {'color': (163, 164, 167), 'text': 'skeleton', 'unit': 'skeleton'},
                        {'color': (60, 164, 67), 'text': 'hoblin archer', 'unit': 'hoblin archer'},
+                       {'color': (60, 164, 67), 'text': 'spiderling', 'unit': 'spiderling'}
                        ]
     phys = Physics(friction, gravity)
     units = []
@@ -97,7 +99,7 @@ def sandbox(game):
 
     def unit_able_to(u, action):
         if action == "attack":
-            return u.state in ["stand", "attack_move"]
+            return u.state in ["stand", "attack_move"] and u.properties["has_attack"]
         if action == "be_attacked":
             return u.state in ["stand", "moving", "falling", "stunned", "attack"]
         if action == "collide":
@@ -113,6 +115,8 @@ def sandbox(game):
             return skeleton.Skeleton(m_pos, "drag", current_team)
         elif btn_data == 'hoblin archer':
             return HoblinArcher(m_pos, "drag", current_team)
+        elif btn_data == 'spiderling':
+            return Spiderling(m_pos, "drag", current_team)
 
     while 1:  # Основной цикл программы
         if game.state != "Sandbox":
@@ -292,6 +296,6 @@ def sandbox(game):
                 if unit.half_rect.colliderect(unit2.half_rect) and unit_able_to(unit, "collide") and unit_able_to(unit2, "collide"):
                     phys.collide_units(unit, unit2)
             if unit.state != "dead":
-                screen.blit(game.font.render(str(unit.state), False, (55, 55, 55)), (unit.rect.topleft[0], unit.rect.topleft[1] - 30))
+                screen.blit(game.font.render(str(unit.casting_ability), False, (55, 55, 55)), (unit.rect.topleft[0], unit.rect.topleft[1] - 30))
                 screen.blit(game.font.render(str(unit.hp), False, (55, 55, 55)), (unit.rect.topleft[0] - 10, unit.rect.topleft[1] - 20))
         pygame.display.update()

@@ -52,6 +52,8 @@ class SkeletonAnimations:
         self.Attack2_left.makeTransformsPermanent()
         self.Attack_anim_cur = self.Attack1_right
 
+        self.Casting_anim_cur = self.Attack1_right
+
         self.Dead_right = image.load(resource_path("Media/Sprites/Units/Skeleton/skeleton_dead.png"))
         self.Dead_left = transform.flip(image.load(resource_path("Media/Sprites/Units/Skeleton/skeleton_dead.png")), True, False)
 
@@ -83,26 +85,40 @@ class SkeletonAnimations:
         self.Walk_right._rate = self.speed
 
     def attack_anims_con(self, action, dirr):
-        if dirr == 0:
-            if random.randint(1, 2) == 1:
-                self.Attack_anim_cur = self.Attack1_left
-            else:
-                self.Attack_anim_cur = self.Attack2_left
-        else:
-            if random.randint(1, 2) == 1:
-                self.Attack_anim_cur = self.Attack1_right
-            else:
-                self.Attack_anim_cur = self.Attack2_right
+        self.set_cur_dir(dirr)
         if action == "stop":
             self.Attack_anim_cur.stop()
         elif action == "play":
             self.Attack_anim_cur.play()
 
+    def casting_anim_control(self, action, dirr):
+        self.set_cur_dir(dirr)
+        if action == "stop":
+            self.Casting_anim_cur.stop()
+        elif action == "play":
+            self.Casting_anim_cur.play()
+
     def get_anim_speed(self, anim):
-        anim_array = self.Attack_pic
+        anim_array = self.Attack1_pic
         ms_sum = 0
         if anim == "Attack":
-            anim_array = self.Attack_pic
+            anim_array = self.Attack1_pic
         for frame in anim_array:
             ms_sum += frame[1]
         return ms_sum
+
+    def set_cur_dir(self, dirr):
+        if dirr == 0:
+            if random.randint(1, 2) == 1:
+                self.Attack_anim_cur = self.Attack1_left
+                self.Casting_anim_cur = self.Attack1_left
+            else:
+                self.Attack_anim_cur = self.Attack2_left
+                self.Casting_anim_cur = self.Attack2_left
+        else:
+            if random.randint(1, 2) == 1:
+                self.Attack_anim_cur = self.Attack1_right
+                self.Casting_anim_cur = self.Attack1_right
+            else:
+                self.Attack_anim_cur = self.Attack2_right
+                self.Casting_anim_cur = self.Attack2_right
