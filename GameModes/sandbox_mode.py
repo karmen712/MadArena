@@ -101,11 +101,13 @@ def sandbox(game):
         if action == "attack":
             return u.state in ["stand", "attack_move", "casting"] and u.properties["has_attack"]
         if action == "be_attacked":
-            return u.state in ["stand", "moving", "falling", "stunned", "attack", "casting" ]
+            return u.state in ["stand", "moving", "falling", "stunned", "attack", "casting"]
         if action == "collide":
             return u.state in ["stand", "moving", "falling", "stunned", "attack_move", "attack", "casting"]
         if action == "move":
             return u.state in ["stand", "attack_move", "attack", "casting", "moving"]
+        if action == "cast_an_ability":
+            return u.has_abilities_to_cast()
 
     def get_distance(pos1, pos2):
         return math.hypot(pos1[0] - pos2[0], pos1[1] - pos2[1])
@@ -283,7 +285,12 @@ def sandbox(game):
                         continue
                     if unit_able_to(unit2, "be_attacked") and get_distance(unit.rect.midbottom, unit2.rect.midbottom) < unit.enemy_detect_range:
                         attack_targets.append(unit2)
-
+            elif unit_able_to(unit, "cast_an_ability"):
+                for unit2 in units:
+                    if unit.id == unit2.id or unit.team == unit2.team:
+                        continue
+                    if unit_able_to(unit2, "be_attacked") and get_distance(unit.rect.midbottom, unit2.rect.midbottom) < unit.enemy_detect_range:
+                        attack_targets.append(unit2)
             if len(attack_targets) > 1:
                 min_dist = unit.enemy_detect_range
                 for tr in attack_targets:
@@ -299,7 +306,7 @@ def sandbox(game):
                     continue
                 if unit.half_rect.colliderect(unit2.half_rect) and unit_able_to(unit, "collide") and unit_able_to(unit2, "collide"):
                     phys.collide_units(unit, unit2)
-            #if unit.state != "dead":
-            screen.blit(game.font.render(str(unit.state), False, (55, 55, 55)), (unit.rect.topleft[0], unit.rect.topleft[1] - 30))
-            screen.blit(game.font.render(str(unit.hp), False, (55, 55, 55)), (unit.rect.topleft[0] - 10, unit.rect.topleft[1] - 20))
+            if unit.state != "dead":
+                screen.blit(game.font.render(str(unit.state), False, (55, 55, 55)), (unit.rect.topleft[0], unit.rect.topleft[1] - 30))
+                screen.blit(game.font.render(str(unit.hp), False, (55, 55, 55)), (unit.rect.topleft[0] - 10, unit.rect.topleft[1] - 20))
         pygame.display.update()

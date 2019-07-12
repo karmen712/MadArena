@@ -48,14 +48,12 @@ class ParabollicTrajectory:
                 del pr
 
     def spawn_projectile(self):
-        print("casted! " + str(self.caster.id))
         self.caster.casting_ability = None
         self.caster.ability_target = None
         pos = self.caster.rect.topleft if self.caster.dir == 0 else self.caster.rect.topright
         self.projectiles.append(self.projectile(pos, self.caster.dir, self.damage, self.caster, self.spell_target))
 
     def cast(self, target):
-        print("casting! " + str(self.caster.id))
         self.caster.set_dir_to(target)
         self.spell_target = target
         self.state = "casting"
