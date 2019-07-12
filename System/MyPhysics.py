@@ -88,3 +88,17 @@ class Physics:
         else:
             unit.rect.y -= collision_speed_y
             unit.target = (unit.target[0], unit.target[1] - collision_speed_y)
+
+    @staticmethod
+    def get_angle_pos(angle, pos, dist):
+        x = pos[0] + (dist * math.cos(math.radians(angle)))
+        y = pos[1] + (dist * math.sin(math.radians(angle)))
+        return x, y
+
+    @staticmethod
+    def get_angle_between_points(pos1, pos2):
+        dx = pos2[0] - pos1[0]
+        dy = pos2[1] - pos1[1]
+        rads = math.atan2(-dy, dx)
+        rads %= 2 * math.pi
+        return math.degrees(rads)

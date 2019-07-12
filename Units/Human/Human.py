@@ -17,6 +17,7 @@ class Human:
         self.animations = HumanAnimations(100)
         self.abilities = []
         # region ATTACK
+        self.ability_target = None
         self.attack_damage = 10
         self.attack_range = int(5 + self.rect.width/2)
         self.attack_target = None
@@ -46,6 +47,8 @@ class Human:
         }
         self.selected = False
         self.state = state
+        self.stun_effect = None
+        self.stun_time = 0
         self.target = self.half_rect.center
         self.team = team
         # region VELOCITY, SPEED AND Z
@@ -61,12 +64,13 @@ class Human:
         if self.attack_target is None:
             return False
         return self.attack_target.hp > 0 and self.get_dist_to_attack_trgt() < self.attack_range\
-            and self.attack_target.state != "dead" and self.in_target_y_width()
+            and self.attack_target.state != "dead" and self.in_target_y_width(self.attack_target)
 
     def able_to_cast(self):
-        if self.attack_target is None or self.casting_ability is None:
+        if self.ability_target is None or self.casting_ability is None:
             return False
-        return self.attack_target.hp > 0 and self.attack_target.state != "dead" and self.in_target_y_width()
+        return self.ability_target.hp > 0 and self.ability_target.state != "dead" and self.in_target_y_width(self.ability_target)\
+            and self.get_dist_to_ability_trgt() < self.casting_ability.casting_distance
 
     def attack_start(self):
         self.set_dir_to(self.attack_target)
@@ -78,9 +82,17 @@ class Human:
         self.state = "stand"
 
     def find_point_to_attack(self, order=False):
+        if self.state == "casting" or self.state == "stunned":
+            return
+
+        if self.has_abilities_to_cast():
+            self.ability_target = self.attack_target
+            self.attack_target = None
+            self.determine_ability_to_cast()
+            self.find_point_to_cast()
+            return
+
         if not self.properties["has_attack"]:
-            if self.has_abilities_to_cast():
-                self.find_point_to_cast()
             return
 
         if self.end_fight() and not order:
@@ -110,24 +122,22 @@ class Human:
             return
 
         if self.able_to_cast() or order:
+            self.stop_moving()
+            self.state = "casting"
+            self.set_dir_to(self.ability_target)
             self.animations.set_cur_dir(self.dir)
             self.animations.Casting_anim_cur.play()
-            self.casting_ability.cast(self.attack_target)
+            self.casting_ability.cast(self.ability_target)
             return
 
         x1, y1 = self.rect.midbottom
-        x2, y2 = self.attack_target.rect.midbottom  # tx, ty = target x, target y
+        x2, y2 = self.ability_target.rect.midbottom  # tx, ty = target x, target y
         tx = x1
 
-        self.casting_ability = None
-
-        for ab in self.abilities:
-            if ab.state == "ready":
-                if self.casting_ability is None or self.casting_ability.casting_distance < ab.casting_distance:
-                    self.casting_ability = ab
+        self.determine_ability_to_cast()
 
         if self.casting_ability is not None:
-            if self.get_dist_to_attack_trgt() >= self.casting_ability.casting_distance:
+            if self.get_dist_to_ability_trgt() >= self.casting_ability.casting_distance:
                 extra_range = self.casting_ability.casting_distance
                 if x1 < x2:
                     tx = x2 - extra_range
@@ -137,12 +147,14 @@ class Human:
             return
 
         if y1 < y2:
-            ty = y2 - (self.attack_target.body_height / 2)
+            ty = y2 - (self.ability_target.body_height / 2)
         else:
-            ty = y2 + (self.attack_target.body_height / 2)
+            ty = y2 + (self.ability_target.body_height / 2)
         self.target = (tx, ty)
 
     def has_abilities_to_cast(self):
+        if self.casting_ability is not None:
+            return True
         if len(self.abilities) == 0:
             return False
         for ab in self.abilities:
@@ -161,9 +173,16 @@ class Human:
             target.hp -= amount
         if target.hp < 1:
             target.killer = self
-        if hasattr(target, 'attack_target') and target.attack_target is None:
+        if hasattr(target, 'attack_target') and target.attack_target is None and self.hp > 0:
             target.attack_target = self
             target.find_point_to_attack(order=True)
+
+    def determine_ability_to_cast(self):
+        self.casting_ability = None
+        for ab in self.abilities:
+            if ab.state == "ready":
+                if self.casting_ability is None or self.casting_ability.casting_distance < ab.casting_distance:
+                    self.casting_ability = ab
 
     def die(self):
         self.yvel = -4.0
@@ -174,6 +193,7 @@ class Human:
         self.state = "dead"
         self.target = self.rect.midbottom
         self.attack_target = None
+        self.ability_target = None
         if self.dir == 0:
             self.image = self.animations.Dead_left
         else:
@@ -225,7 +245,9 @@ class Human:
         elif self.state == "stand":
             self.stop_moving()
             if self.attack_target is not None:
-                    self.find_point_to_attack()
+                self.find_point_to_attack()
+            elif self.ability_target is not None:
+                self.find_point_to_cast()
             if self.dir == 0:
                 self.animations.Stand_left.blit(screen, (self.rect.x, self.rect.y))
             else:
@@ -266,6 +288,18 @@ class Human:
         elif self.state == "casting":
             self.animations.Casting_anim_cur.blit(screen, self.rect)
 
+        elif self.state == "stunned":
+            if self.dir == 0:
+                self.animations.Stand_left.blit(screen, (self.rect.x, self.rect.y))
+            else:
+                self.animations.Stand_right.blit(screen, (self.rect.x, self.rect.y))
+            self.stun_effect.draw(screen, self.rect.midtop)
+            if self.stun_time <= 0:
+                self.state = "stand"
+                return
+            self.stun_time -= options.milliseconds
+
+
     def end_attacking(self):
         if self.attack_target is None:
             return True
@@ -282,18 +316,24 @@ class Human:
     def get_distance(p1, p2):
         return math.hypot(p1[0] - p2[0], p1[1] - p2[1])
 
+    def get_dist_to_ability_trgt(self):
+        if self.ability_target is not None:
+            return self.get_distance(self.rect.midbottom, self.ability_target.rect.midbottom) - self.rect.width/2 - self.ability_target.rect.width/2
+        else:
+            return 0
+
     def get_dist_to_attack_trgt(self):
         if self.attack_target is not None:
             return self.get_distance(self.rect.midbottom, self.attack_target.rect.midbottom) - self.rect.width/2 - self.attack_target.rect.width/2
         else:
             return 0
 
-    def in_target_y_width(self):
-        if self.attack_target is None:
+    def in_target_y_width(self, trgt):
+        if trgt is None:
             return False
         selfy = self.half_rect.center[1]
-        trgty = self.attack_target.half_rect.center[1]
-        trgth = self.attack_target.body_height / 2 + self.body_height / 2
+        trgty = trgt.half_rect.center[1]
+        trgth = trgt.body_height / 2 + self.body_height / 2
         return trgty + trgth > selfy > trgty - trgth
 
     def land_hit(self):
@@ -334,6 +374,11 @@ class Human:
         self.z = 0.0
 
         self.target = self.rect.midbottom
+
+    def stun_self(self, amount, effect):
+        self.state = "stunned"
+        self.stun_time = amount
+        self.stun_effect = effect
 
     def walk_to_target(self):
         bx, by = self.rect.midbottom
