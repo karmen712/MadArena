@@ -50,7 +50,7 @@ def sandbox(game):
 
     offset = usb.rect.left + 5
     btn_width = w / 16
-    unit_classes = [Human.Human, skeleton.Skeleton, HoblinArcher]
+    unit_classes = [Human.Human, skeleton.Skeleton, HoblinArcher, Spiderling]
     current_team = 1
     team_select_switch = Button(usb.rect.bottomleft, 120, 20, (165, 165, 165), fillcolor=team_colors[current_team], centered=False,
                                 textsize=12, text="Команда:1", textfont="TimesNewRoman", focusbrightness=40, borderwidth=2)
@@ -99,7 +99,7 @@ def sandbox(game):
 
     def unit_able_to(u, action):
         if action == "attack":
-            return u.state in ["stand", "attack_move", "casting"] and u.properties["has_attack"]
+            return u.state in ["stand", "attack_move"] and u.properties["has_attack"]
         if action == "be_attacked":
             return u.state in ["stand", "moving", "falling", "stunned", "attack", "casting"]
         if action == "collide":
@@ -107,7 +107,7 @@ def sandbox(game):
         if action == "move":
             return u.state in ["stand", "attack_move", "attack", "casting", "moving"]
         if action == "cast_an_ability":
-            return u.has_abilities_to_cast()
+            return u.has_abilities_to_cast() and u.state in ["stand", "attack_move", "moving"]
 
     def get_distance(pos1, pos2):
         return math.hypot(pos1[0] - pos2[0], pos1[1] - pos2[1])
