@@ -24,6 +24,7 @@ class Human:
         # endregion
         self.body_height = self.rect.height * 0.18
         self.casting_ability = None
+        self.disabling_statuses = ["dead", "drag", "stunned"]
         self.enemy_detect_range = 150
         self.energy_shield_cur = 0
         self.energy_shield_max = 0
@@ -63,10 +64,22 @@ class Human:
     def able_to_attack(self):
         if self.attack_target is None:
             return False
+        return self.hp > 0 and self.get_dist_to_attack_trgt() < self.attack_range \
+            and self.state not in self.disabling_statuses and self.in_target_y_width(self.attack_target)
+
+    def able_to_attack_target(self):
+        if self.attack_target is None:
+            return False
         return self.attack_target.hp > 0 and self.get_dist_to_attack_trgt() < self.attack_range\
             and self.attack_target.state != "dead" and self.in_target_y_width(self.attack_target)
 
     def able_to_cast(self):
+        if self.ability_target is None or self.casting_ability is None:
+            return False
+        return self.hp > 0 and self.get_dist_to_ability_trgt() < self.casting_ability.casting_distance \
+            and self.state not in self.disabling_statuses and self.in_target_y_width(self.ability_target)
+
+    def able_to_cast_on_target(self):
         if self.ability_target is None or self.casting_ability is None:
             return False
         return self.ability_target.hp > 0 and self.ability_target.state != "dead" and self.in_target_y_width(self.ability_target)\
@@ -82,24 +95,24 @@ class Human:
         self.state = "stand"
 
     def find_point_to_attack(self, order=False):
-        if self.state == "casting" or self.state == "stunned":
+        if self.state == "casting" or self.state in self.disabling_statuses:
             return
 
         if self.has_abilities_to_cast():
             self.ability_target = self.attack_target
             self.attack_target = None
             self.determine_ability_to_cast()
-            self.find_point_to_cast()
+            self.find_point_to_cast(order=order)
             return
 
-        if not self.properties["has_attack"]:
+        if not self.properties["has_attack"] or self.attack_target is None:
             return
 
         if self.end_fight() and not order:
             self.stop_attacking()
             return
 
-        if not self.end_attacking() and self.able_to_attack():
+        if not self.end_attacking() and self.able_to_attack_target() and self.able_to_attack():
             self.attack_start()
             return
 
@@ -118,10 +131,12 @@ class Human:
         self.target = (tx, ty)
 
     def find_point_to_cast(self, order=False):
-        if self.state == "casting":
+        if self.state == "casting" or self.ability_target is None:
             return
 
-        if self.able_to_cast() or order:
+        self.determine_ability_to_cast()
+
+        if self.able_to_cast_on_target() and self.able_to_cast():
             self.stop_moving()
             self.state = "casting"
             self.set_dir_to(self.ability_target)
@@ -130,11 +145,15 @@ class Human:
             self.casting_ability.cast(self.ability_target)
             return
 
+        elif (self.ability_target.hp < 1 or self.ability_target.state == "dead") or\
+             (self.get_dist_to_ability_trgt() < self.casting_ability.casting_distance and not order):
+            self.stop_moving()
+            self.ability_target = None
+            return
+
         x1, y1 = self.rect.midbottom
         x2, y2 = self.ability_target.rect.midbottom  # tx, ty = target x, target y
         tx = x1
-
-        self.determine_ability_to_cast()
 
         if self.casting_ability is not None:
             if self.get_dist_to_ability_trgt() >= self.casting_ability.casting_distance:
@@ -206,6 +225,8 @@ class Human:
                            Rect(self.rect.x + 3, self.rect.y - 11, self.hp / 4, 2)]
             draw.rect(screen, options.team_colors[self.team], self.hp_bar[0], 1)  # контур полоски hp
             draw.rect(screen, (70, 200, 70), self.hp_bar[1], 0)                   # текущее количество hp
+            if self.ability_target is not None:
+                draw.line(screen, (200, 200, 200), self.rect.center, self.ability_target.rect.center, 1)
 
         for item in self.items:
             item.draw(screen)
@@ -299,7 +320,6 @@ class Human:
                 return
             self.stun_time -= options.milliseconds
 
-
     def end_attacking(self):
         if self.attack_target is None:
             return True
@@ -307,10 +327,14 @@ class Human:
                 or (self.attack_target.state == "dead"))
 
     def end_fight(self):
-        if self.attack_target is None:
+        if self.attack_target is None and self.ability_target is None:
             return True
-        return (self.attack_target.hp < 1 or self.attack_target.state == "dead"
-                or self.get_dist_to_attack_trgt() > self.enemy_detect_range)
+        if self.attack_target is not None:
+            return (self.attack_target.hp < 1 or self.attack_target.state == "dead"
+                    or self.get_dist_to_attack_trgt() > self.enemy_detect_range)
+        if self.ability_target is not None:
+            return (self.ability_target.hp < 1 or self.ability_target.state == "dead"
+                    or self.get_dist_to_ability_trgt() > self.enemy_detect_range)
 
     @staticmethod
     def get_distance(p1, p2):
@@ -341,7 +365,7 @@ class Human:
         self.attack_start()
         if self.get_dist_to_attack_trgt() <= self.attack_range and self.attack_target is not None:
             self.deal_damage(self.attack_damage, self.attack_target)
-        if self.end_attacking() or not self.able_to_attack():
+        if self.end_attacking() or not self.able_to_attack_target():
             if self.end_fight():
                 self.attack_target = None
             self.attack_stop()
