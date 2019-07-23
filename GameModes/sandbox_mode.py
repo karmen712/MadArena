@@ -105,7 +105,7 @@ def sandbox(game):
         if action == "collide":
             return u.state in ["stand", "moving", "falling", "stunned", "attack_move", "attack", "casting"]
         if action == "move":
-            return u.state in ["stand", "attack_move", "attack", "casting", "moving"]
+            return u.state in ["stand", "attack_move", "attack", "moving"]
         if action == "cast_an_ability":
             return u.has_abilities_to_cast() and u.state in ["stand", "attack_move", "moving"]
 
@@ -212,7 +212,7 @@ def sandbox(game):
                         if len(sel_units) > 0:
                             formation_order = 0
                             frmt_sighn = 1
-                            if len(sel_units) == 1:
+                            if len(sel_units) == 1 and unit_able_to(sel_units[0], "move"):
                                 sel_units[0].target = m_pos
                             for sel_unit in sel_units:
                                 if not unit_able_to(sel_unit, "move"):
