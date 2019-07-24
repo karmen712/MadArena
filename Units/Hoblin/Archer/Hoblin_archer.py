@@ -3,6 +3,7 @@ from System.resoursepath import resource_path
 from Units.Human.Human import Human
 from Units.Hoblin.Archer.Hoblin_archer_animations import HoblinArcherAnimations
 from Menus.options import milliseconds, gravity
+from random import randint
 
 
 class HoblinArcher(Human):
@@ -52,14 +53,14 @@ class HoblinArcher(Human):
             pos = (self.rect.center[0] - 5, self.rect.center[1] - 6)
         else:
             pos = (self.rect.center[0] + 5, self.rect.center[1] - 6)
-        self.items.append(Arrow(self, pos, self.dir, self.attack_target, self.get_dist_to_attack_trgt(), self.attack_damage))
+        self.items.append(HoblinArrow(self, pos, self.dir, self.attack_target, self.get_dist_to_attack_trgt(), self.attack_damage))
         if self.end_attacking() or not self.able_to_attack():
             if self.end_fight():
                 self.attack_target = None
             self.attack_stop()
 
 
-class Arrow:
+class HoblinArrow:
     def __init__(self, owner, pos, direction, target, distance_to_target, damage):
         self.image = image.load(resource_path("Media/Sprites/Units/Hoblin/Archer/hoblin_archer_arrow.png"))
         self.damage = damage
@@ -83,9 +84,12 @@ class Arrow:
 
     def draw(self, screen):
         screen.blit(self.image, self.rect)
+
         if self.state == "in_motion":
             draw.line(screen, (230, 240, 60), self.start_pos, self.rect.center)
-            self.rect.move_ip(self.speed, 0)
+            gr = gravity*randint(1, 4)
+            self.rect.move_ip(self.speed, gr)
+            self.z -= gr
             self.distance_travelled += abs(self.speed)
             if self.rect.colliderect(self.target.rect):
                 self.state = "stopped"
@@ -104,8 +108,6 @@ class Arrow:
 
         if self.life_time <= 0:
             self.remove()
-
-
 
     def move_ip(self, pos):
         self.rect.center = pos
