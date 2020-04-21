@@ -231,16 +231,18 @@ class Human:
         for item in self.items:
             item.draw(screen)
 
-        for ability in self.abilities:
-            ability_delta = 0
-            pos = self.hp_bar[0].x + ability_delta, self.hp_bar[0].y - 7
-            clr = (40, 250, 40) if ability.state == "ready" else (250, 40, 40)
-            draw.circle(screen, clr, pos, 3, 0)
-            ability.draw(screen)
+        def draw_abilities_cd():
+            for ability in self.abilities:
+                ability_delta = 0
+                pos = self.hp_bar[0].x + ability_delta, self.hp_bar[0].y - 7
+                clr = (40, 250, 40) if ability.state == "ready" else (250, 40, 40)
+                draw.circle(screen, clr, pos, 3, 0)
+                ability.draw(screen)
 
         self.half_rect.center = self.rect.midbottom
         if self.hp > 0:
             draw_hp_bar()
+            draw_abilities_cd()
             if not self.half_rect.collidepoint(self.target) and (self.state != "drag") and (self.state != "falling"):
                 self.state = "moving"
             if self.selected:
