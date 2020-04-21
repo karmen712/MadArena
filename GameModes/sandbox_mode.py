@@ -107,7 +107,7 @@ def sandbox(game):
         if action == "move":
             return u.state in ["stand", "attack_move", "attack", "moving"]
         if action == "cast_an_ability":
-            return u.has_abilities_to_cast() and u.state in ["stand", "attack_move", "moving"]
+            return u.has_abilities_to_cast() and u.state in ["stand", "attack_move"]
 
     def get_distance(pos1, pos2):
         return math.hypot(pos1[0] - pos2[0], pos1[1] - pos2[1])

@@ -146,7 +146,7 @@ class Human:
             return
 
         elif (self.ability_target.hp < 1 or self.ability_target.state == "dead") or\
-             (self.get_dist_to_ability_trgt() < self.casting_ability.casting_distance and not order):
+             (self.get_dist_to_ability_trgt() > self.casting_ability.casting_distance and not order):
             self.stop_moving()
             self.ability_target = None
             return
