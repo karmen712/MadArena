@@ -9,7 +9,7 @@ from Abilities.ability_sample_classes import ParabollicTrajectory
 
 class Human:
     def __init__(self, pos, state, team):
-        self.image = image.load(resource_path("Media/Sprites/Units/Human/human.png"))
+        self.image = image.load(resource_path("Media/Sprites/Units/Humans/Human_fighter/human.png"))
         self.rect = self.image.get_rect(center=pos)
         self.dir = random.randint(0, 1)  # 0 - LEFT 1- RIGHT
 
@@ -41,7 +41,7 @@ class Human:
         self.moving = False
         self.move_speed_x = 2.0
         self.move_speed_y = 1.0
-        self.name = "Human"
+        self.name = "Human_fighter"
         self.properties = {
             "has_blood": True,
             "has_attack": True
