@@ -1,6 +1,6 @@
 from pygame import *
 from System.resoursepath import resource_path
-import Menus.options as options
+import System.game_options as options
 import math
 import pyganim
 

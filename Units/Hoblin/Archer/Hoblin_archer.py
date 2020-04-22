@@ -2,7 +2,7 @@ from pygame import *
 from System.resoursepath import resource_path
 from Units.Human.Human import Human
 from Units.Hoblin.Archer.Hoblin_archer_animations import HoblinArcherAnimations
-from Menus.options import milliseconds, gravity
+from System.game_options import milliseconds, gravity
 from random import randint
 
 

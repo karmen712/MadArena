@@ -2,9 +2,8 @@ from pygame import *
 import math
 from System.resoursepath import resource_path
 import random
-import Menus.options as options
+import System.game_options as options
 from Units.Human.human_animations import HumanAnimations
-from Abilities.ability_sample_classes import ParabollicTrajectory
 
 
 class Human:

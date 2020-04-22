@@ -9,7 +9,7 @@ from Units.Skeleton import skeleton
 import random
 import math
 from System.MyPhysics import Physics
-from Menus.options import *
+from System.game_options import *
 from Units.Hoblin.Archer.Hoblin_archer import HoblinArcher
 from Units.Insects.Spiderling.spiderling import Spiderling
 from Units.Special.arena_cleaners import MeatHoover
