@@ -17,6 +17,7 @@ class ParabollicTrajectory:
         self.projectiles = []
         self.spell_target = None
         self.state = "ready"
+        self.tags = []
 
     def draw(self, screen):
 
@@ -88,6 +89,7 @@ class RedBall:
         self.state = "in_motion"
         self.speed = -14 if dirr == 0 else 14
         self.target = target
+        self.tags = [2]
         self.tail = True
         self.tail_color = (235, 46, 58)
         self.tail_length = 8

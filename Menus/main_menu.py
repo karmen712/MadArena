@@ -4,6 +4,7 @@ from Interface.Background import *
 from Interface.Button import *
 
 from GameModes.sandbox_mode import sandbox
+from Menus.options_menu import options_menu
 
 
 def main_menu(game):
@@ -12,7 +13,10 @@ def main_menu(game):
     screen = game.screen
 
     sandbox_button = Button([game.WIN_WIDTH/2, game.WIN_HEIGHT/2 - 50], 250, 40, (165, 165, 165), fillcolor=(185, 185, 185), textsize=16, text="Песочница", textfont="Impact", focusbrightness=20, borderwidth=2)
-    quit_button = Button([game.WIN_WIDTH/2, game.WIN_HEIGHT/2 + 100], 250, 40, (165, 165, 165), fillcolor=(185, 185, 185), textsize=16, text="Выйти", textfont="Impact", focusbrightness=20, borderwidth=2)
+    options_button = Button([game.WIN_WIDTH / 2, game.WIN_HEIGHT / 2 + 100], 250, 40, (165, 165, 165),
+                            fillcolor=(185, 185, 185), textsize=16, text="Настройки", textfont="Impact",
+                            focusbrightness=20, borderwidth=2)
+    quit_button = Button([game.WIN_WIDTH/2, game.WIN_HEIGHT/2 + 150], 250, 40, (165, 165, 165), fillcolor=(185, 185, 185), textsize=16, text="Выйти", textfont="Impact", focusbrightness=20, borderwidth=2)
 
     while 1:  # Основной цикл программы
         if game.state != "MainMenu":
@@ -31,11 +35,16 @@ def main_menu(game):
                     game.state = "Sandbox"
                     sandbox(game)
                     break
+                if options_button.rect.collidepoint(pos):
+                    game.state = "OptionsMenu"
+                    options_menu(game)
+                    break
                 if quit_button.rect.collidepoint(pos):
                     raise SystemExit
 
         screen.blit(bg.image, bg.rect)
         sandbox_button.draw(screen, pos)
+        options_button.draw(screen, pos)
         quit_button.draw(screen, pos)
 
         pygame.display.update()

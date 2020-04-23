@@ -94,7 +94,7 @@ class HoblinArrow:
             if self.rect.colliderect(self.target.rect):
                 self.state = "stopped"
                 if self.target.hp > 0:
-                    self.owner.deal_damage(self.damage, self.target)
+                    self.owner.deal_damage(self.damage, self.target, "physic", "range_attack")
 
             if self.distance_travelled > self.owner.attack_range:
                 self.state = "stopped"

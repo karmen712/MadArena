@@ -23,10 +23,12 @@ class Human:
         # endregion
         self.body_height = self.rect.height * 0.18
         self.casting_ability = None
+        self.damage_font = font.SysFont('Arial', 12)
         self.disabling_statuses = ["dead", "drag", "stunned"]
         self.enemy_detect_range = 150
         self.energy_shield_cur = 0
         self.energy_shield_max = 0
+        self.floating_texts = []
         self.half_rect = self.rect.copy()
         self.half_rect.height = self.body_height
         self.half_rect.center = self.rect.midbottom
@@ -83,6 +85,15 @@ class Human:
             return False
         return self.ability_target.hp > 0 and self.ability_target.state != "dead" and self.in_target_y_width(self.ability_target)\
             and self.get_dist_to_ability_trgt() < self.casting_ability.casting_distance
+
+    def add_falling_text(self, text):
+        self.floating_texts.append(text)
+
+    def aggro_to_target(self, target):
+        if hasattr(self, 'attack_target') and self.attack_target is None and self.hp > 0:
+            self.attack_target = target
+            if self.state == "stand":
+                self.find_point_to_attack(order=True)
 
     def attack_start(self):
         self.set_dir_to(self.attack_target)
@@ -180,20 +191,11 @@ class Human:
                     return True
         return False
 
-    def deal_damage(self, amount, target):
-        if target.energy_shield_cur > 0:
-            if target.energy_shield_cur < amount:
-                target.hp -= amount - target.energy_shield_cur
-                target.energy_shield_cur = 0
-            else:
-                target.energy_shield_cur -= amount
-        else:
-            target.hp -= amount
-        if target.hp < 1:
-            target.killer = self
-        if hasattr(target, 'attack_target') and target.attack_target is None and self.hp > 0:
-            target.attack_target = self
-            target.find_point_to_attack(order=True)
+    def deal_damage(self, damage_amount, target, damage_type, damage_source):
+        for skill in self.abilities:
+            if 0 in skill.tags:  # tags description in game_options.py
+                damage_amount = skill.affect(damage_amount, target, damage_type, damage_source)
+        target.receive_damage(damage_amount, self, damage_type, damage_source)
 
     def determine_ability_to_cast(self):
         self.casting_ability = None
@@ -321,6 +323,20 @@ class Human:
                 return
             self.stun_time -= options.milliseconds
 
+        if options.show_damage_numbers:
+            for txt in self.floating_texts:
+                screen.blit(self.damage_font.render(str(txt[0]), False, txt[5]), txt[1])
+                if txt[6] < txt[3] and txt[7] == 0:
+                    txt[1][1] -= txt[8]
+                    txt[6] += txt[8]
+                elif txt[6] >= txt[3] and txt[7] == 0:
+                    txt[7] = 1
+                elif txt[6] >= 0 and txt[7] == 1:
+                    txt[1][1] += txt[8]
+                    txt[6] -= txt[8]
+                elif txt[6] < 0 and txt[7] == 1:
+                    self.floating_texts.remove(txt)
+
     def end_attacking(self):
         if self.attack_target is None:
             return True
@@ -365,7 +381,7 @@ class Human:
         self.set_dir_to(self.attack_target)
         self.attack_start()
         if self.get_dist_to_attack_trgt() <= self.attack_range and self.attack_target is not None:
-            self.deal_damage(self.attack_damage, self.attack_target)
+            self.deal_damage(self.attack_damage, self.attack_target, "physic", "attack")
         if self.end_attacking() or not self.able_to_attack_target():
             if self.end_fight():
                 self.attack_target = None
@@ -373,6 +389,28 @@ class Human:
 
     def move_ip(self, pos):
         self.rect.topright = pos
+
+    def receive_damage(self, damage_amount, damage_dealer, damage_type, damage_source):
+        for skill in self.abilities:
+            if 1 in skill.tags:   # tags description in game_options.py
+                damage_amount = skill.affect(damage_amount, self, damage_type, damage_source)
+        if damage_amount > 0:
+            if self.energy_shield_cur > 0:
+                if self.energy_shield_cur < damage_amount:
+                    self.hp -= damage_amount - self.energy_shield_cur
+                    self.energy_shield_cur = 0
+                else:
+                    self.energy_shield_cur -= damage_amount
+            else:
+                self.hp -= damage_amount
+
+            if self.hp < 1:
+                self.killer = damage_dealer
+
+            txt = [str(damage_amount), [self.rect.center[0], self.rect.center[1]], random.choice([-1, 1]),
+                   random.randint(50, 75), random.uniform(0.5, 1.0), options.damage_colors[damage_type], 0, 0, 12]
+
+            self.add_falling_text(txt)
 
     def set_dir_to(self, something):
         slfx, slfy = self.rect.midbottom
