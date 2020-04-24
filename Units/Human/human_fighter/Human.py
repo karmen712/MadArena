@@ -3,7 +3,7 @@ import math
 from System.resoursepath import resource_path
 import random
 import System.game_options as options
-from Units.Human.human_animations import HumanAnimations
+from Units.Human.human_fighter.human_animations import HumanAnimations
 
 
 class Human:
@@ -92,7 +92,7 @@ class Human:
     def aggro_to_target(self, target):
         if hasattr(self, 'attack_target') and self.attack_target is None and self.hp > 0:
             self.attack_target = target
-            if self.state == "stand":
+            if self.state == "stand" and self.get_dist_to_attack_trgt() > self.attack_range:
                 self.find_point_to_attack(order=True)
 
     def attack_start(self):
@@ -411,6 +411,8 @@ class Human:
                    random.randint(50, 75), random.uniform(0.5, 1.0), options.damage_colors[damage_type], 0, 0, 12]
 
             self.add_falling_text(txt)
+
+        self.aggro_to_target(damage_dealer)
 
     def set_dir_to(self, something):
         slfx, slfy = self.rect.midbottom

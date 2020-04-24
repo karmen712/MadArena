@@ -1,6 +1,6 @@
 from pygame import *
 from System.resoursepath import resource_path
-from Units.Human.Human import Human
+from Units.Human.human_fighter.Human import Human
 from Units.Skeleton.skeleton_animations import SkeletonAnimations
 
 

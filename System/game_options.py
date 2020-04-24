@@ -2,7 +2,7 @@
 friction = 2.0
 gravity = 0.98
 milliseconds = 25
-show_damage_numbers = False
+show_damage_numbers = True
 team_colors = {
         1: (20, 200, 10),
         2: (200, 20, 10),

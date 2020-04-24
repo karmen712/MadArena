@@ -1,7 +1,6 @@
 from pygame import *
 from System.resoursepath import resource_path
-from Units.Human.Human import Human
-from Abilities.ability_sample_classes import ParabollicTrajectory
+from Units.Human.human_fighter.Human import Human
 from Abilities.throw_spider_net import ThrowSpiderNet
 from Units.Insects.Spiderling.spiderling_animation import SpiderlingAnimations
 
