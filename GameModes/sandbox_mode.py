@@ -4,7 +4,7 @@ from GameHUD.game_pause import pause
 from System.resoursepath import resource_path
 from GameHUD.unit_select_bar import UnitSelectBar
 from Interface.Button import Button
-from Units.Human import Human
+from Units.Human.human_fighter import Human
 from Units.Skeleton import skeleton
 import random
 import math
@@ -12,6 +12,7 @@ from System.MyPhysics import Physics
 from System.game_options import *
 from Units.Hoblin.Archer.Hoblin_archer import HoblinArcher
 from Units.Insects.Spiderling.spiderling import Spiderling
+from Units.Human.human_fighter_veteran.human_fighter_veteran import HumanFighterVeteran
 from Units.Special.arena_cleaners import MeatHoover
 from Effects.static_effects import BloodSplat
 
@@ -25,7 +26,8 @@ def sandbox(game):
     available_units = [{'color': (140, 100, 95), 'text': 'human', 'unit': 'human'},
                        {'color': (163, 164, 167), 'text': 'skeleton', 'unit': 'skeleton'},
                        {'color': (60, 164, 67), 'text': 'hoblin archer', 'unit': 'hoblin archer'},
-                       {'color': (60, 164, 67), 'text': 'spiderling', 'unit': 'spiderling'}
+                       {'color': (60, 164, 67), 'text': 'spiderling', 'unit': 'spiderling'},
+                       {'color': (140, 100, 95), 'text': 'human veteran', 'unit': 'human fighter veteran'}
                        ]
     phys = Physics(friction, gravity)
     units = []
@@ -50,7 +52,7 @@ def sandbox(game):
 
     offset = usb.rect.left + 5
     btn_width = w / 16
-    unit_classes = [Human.Human, skeleton.Skeleton, HoblinArcher, Spiderling]
+    unit_classes = [Human.Human, skeleton.Skeleton, HoblinArcher, Spiderling, HumanFighterVeteran]
     current_team = 1
     team_select_switch = Button(usb.rect.bottomleft, 120, 20, (165, 165, 165), fillcolor=team_colors[current_team], centered=False,
                                 textsize=12, text="Команда:1", textfont="TimesNewRoman", focusbrightness=40, borderwidth=2)
@@ -121,6 +123,8 @@ def sandbox(game):
             return HoblinArcher(m_pos, "drag", current_team)
         elif btn_data == 'spiderling':
             return Spiderling(m_pos, "drag", current_team)
+        elif btn_data == 'human fighter veteran':
+            return HumanFighterVeteran(m_pos, "drag", current_team)
 
     while 1:  # Основной цикл программы
         if game.state != "Sandbox":
